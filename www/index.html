@@ -15,53 +15,19 @@
     </style>
    <script src="cordova.js"></script>
    <script src="force.js"></script>
-   
-   <script>
-    /* Do login */
-    force.login(
-        function() {
-            console.log("Auth succeeded"); 
-            showContactsList();
-        },
-        function(error) {
-            console.log("Auth failed: " + error); 
-        }
-    );
-
-    /* This method will render a list of contacts from current salesforce org */
-    var showContactsList = function() {
-
-        fetchRecords(function(data) {
-            var contacts = data.records;
-
-            var listItemsHtml = '';
-            for (var i=0; i < contacts.length; i++) {
-                listItemsHtml += ('<li class="table-view-cell"><div class="media-body">' + contacts[i].Name + '</div></li>');
-            }
-
-            document.querySelector('#contacts').innerHTML = listItemsHtml;
-        })
-    }
-
-    /* This method will fetch a list of contact records from salesforce.
-    Just change the soql query to fetch another sobject. */
-    var fetchRecords = function (successHandler) {
-        var soql = 'SELECT Id, Name FROM Contact LIMIT 100';
-        force.query(soql, successHandler, function(error) {
-            alert('Failed to fetch contacts: ' + error);
-        });
-    };
-    </script>
+   <script src="app.js"></script>
 </head>
-
 <body>
 
     <header class="bar bar-nav">
-        <h1 class="title">Contacts</h1>
+        <h1 class="title">Console</h1>
     </header>
-    <ul id="contacts" class="table-view content">
+    <ul id="ulConsole" class="table-view content">
         <!-- Placeholder to add contacts list -->
     </ul>
-
+    <nav class="bar bar-standard bar-footer">
+      <button class="btn" id="btnInsert1000">Insert 1000</button>
+      <button class="btn" id="btnQueryAll">Query all</button>
+    </nav>
 </body>
 </html>
