@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+    <link href="ratchet.css" rel="stylesheet">
+    <link href="ratchet-theme.css" rel="stylesheet">
+    <style>
+        body {
+            top: env(safe-area-inset-top)
+        }
+        .bar-nav {
+            top: env(safe-area-inset-top)
+        }        
+    </style>
+   <script src="cordova.js"></script>
+   <script src="force.js"></script>
+   
+   <script>
+    /* Do login */
+    force.login(
+        function() {
+            console.log("Auth succeeded"); 
+            showContactsList();
+        },
+        function(error) {
+            console.log("Auth failed: " + error); 
+        }
+    );
+
+    /* This method will render a list of contacts from current salesforce org */
+    var showContactsList = function() {
+
+        fetchRecords(function(data) {
+            var contacts = data.records;
+
+            var listItemsHtml = '';
+            for (var i=0; i < contacts.length; i++) {
+                listItemsHtml += ('<li class="table-view-cell"><div class="media-body">' + contacts[i].Name + '</div></li>');
+            }
+
+            document.querySelector('#contacts').innerHTML = listItemsHtml;
+        })
+    }
+
+    /* This method will fetch a list of contact records from salesforce.
+    Just change the soql query to fetch another sobject. */
+    var fetchRecords = function (successHandler) {
+        var soql = 'SELECT Id, Name FROM Contact LIMIT 100';
+        force.query(soql, successHandler, function(error) {
+            alert('Failed to fetch contacts: ' + error);
+        });
+    };
+    </script>
+</head>
+
+<body>
+
+    <header class="bar bar-nav">
+        <h1 class="title">Contacts</h1>
+    </header>
+    <ul id="contacts" class="table-view content">
+        <!-- Placeholder to add contacts list -->
+    </ul>
+
+</body>
+</html>
