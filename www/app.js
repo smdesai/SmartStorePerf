@@ -8,9 +8,9 @@ const STORE_CONFIG = {isGlobalStore:false}
 const DEPTH = 2 // depth of json objects
 const NUMBER_OF_CHILDREN = 3 // number of branches at each level
 const KEY_LENGTH = 32 // length of keys
-const VALUE_LENGTH = 65536 // length of leaf values
+const VALUE_LENGTH = 100 // length of leaf values
 const MIN_CHARACTER_CODE = 32 // smallest character code to use in random strings
-const MAX_CHARACTER_CODE = 65536 // largest character code to use in random strings
+const MAX_CHARACTER_CODE = 255 // largest character code to use in random strings
 const ENTRY_SIZE = JSON.stringify(generateEntry()).length
 
 // Global variable
@@ -37,6 +37,7 @@ function setupSoup() {
 }
 
 // Function invoked when a btnClear is pressed
+// @return a promise
 function onClear() {
     return storeClient.clearSoup(SOUPNAME)
         .then(() => {
@@ -45,26 +46,32 @@ function onClear() {
 }
 
 // Function invoked when a btnInsert* button is pressed
-function onInsert(n, i, start) {
-    start = start || time()
+// @return a promise
+function onInsert(n, i, start, actuallyAdded) {
     i = i || 0
-    if (i == 0) log(`Adding ${n} entries - ${ENTRY_SIZE} chars each`, "blue")
-    storeClient.upsertSoupEntries(SOUPNAME, [generateEntry()])
-        .then(() => {
-            if (i < n) {
-                onInsert(n, i+1, start)
-            } else {
-                const elapsedTime = time() - start
-                log(`Added ${n} entries in ${elapsedTime} ms`, "green")
-            }
-        })
+    start = start || time()
+    actuallyAdded = actuallyAdded || 0
+
+    if (i == 0) {
+        log(`Adding ${n} entries - ${ENTRY_SIZE} chars each`, "blue")
+    }
+    
+    if (i < n) {
+        return storeClient.upsertSoupEntries(SOUPNAME, [generateEntry()])
+            .then(() => { return onInsert(n, i+1, start, actuallyAdded+1) } )
+    }
+    else {
+        const elapsedTime = time() - start
+        log(`Added ${actuallyAdded} entries in ${elapsedTime} ms`, "green")
+    }
 }
 
 // Function invoked when a btnQueryAll* button is pressed
+// @return a promise
 function onQueryAll(pageSize) {
     var start = time()
     log(`Querying store with page size ${pageSize}`, "blue")
-    storeClient.querySoup(STORE_CONFIG, SOUPNAME, {queryType: "range", path:"key", soupName:SOUPNAME, pageSize:2})
+    return storeClient.querySoup(STORE_CONFIG, SOUPNAME, {queryType: "range", path:"key", soupName:SOUPNAME, pageSize:2})
         .then(cursor => {
             log(`Query matching ${cursor.totalEntries} entries`)
             return traverseResultSet(cursor, cursor.currentPageOrderedEntries.length, start)
