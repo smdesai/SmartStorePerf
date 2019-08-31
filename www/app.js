@@ -5,16 +5,17 @@ const INDEX_SPECS = [{path:"key", type:"String"}]
 const STORE_CONFIG = {isGlobalStore:false}
 
 // Shape of entries
-const DEPTH = 3 // depth of json objects
+const DEPTH = 2 // depth of json objects
 const NUMBER_OF_CHILDREN = 3 // number of branches at each level
 const KEY_LENGTH = 32 // length of keys
-const VALUE_LENGTH = 256 // length of leaf values
+const VALUE_LENGTH = 65536 // length of leaf values
 const MIN_CHARACTER_CODE = 32 // smallest character code to use in random strings
-const MAX_CHARACTER_CODE = 255 // largest character code to use in random strings
+const MAX_CHARACTER_CODE = 65536 // largest character code to use in random strings
 const ENTRY_SIZE = JSON.stringify(generateEntry()).length
 
 // Global variable
 var storeClient
+var logLine = 1
 
 // Sets up soup
 // @return a promise
@@ -35,18 +36,26 @@ function setupSoup() {
         })
 }
 
+// Function invoked when a btnClear is pressed
+function onClear() {
+    return storeClient.clearSoup(SOUPNAME)
+        .then(() => {
+            log("Soup cleared")
+        })
+}
+
 // Function invoked when a btnInsert* button is pressed
 function onInsert(n, i, start) {
     start = start || time()
     i = i || 0
-    if (i == 0) log(`Adding ${n} entries - ${ENTRY_SIZE} chars each`)
+    if (i == 0) log(`Adding ${n} entries - ${ENTRY_SIZE} chars each`, "blue")
     storeClient.upsertSoupEntries(SOUPNAME, [generateEntry()])
         .then(() => {
             if (i < n) {
                 onInsert(n, i+1, start)
             } else {
                 const elapsedTime = time() - start
-                log(`Added ${n} entries in ${elapsedTime} ms`)
+                log(`Added ${n} entries in ${elapsedTime} ms`, "green")
             }
         })
 }
@@ -54,7 +63,7 @@ function onInsert(n, i, start) {
 // Function invoked when a btnQueryAll* button is pressed
 function onQueryAll(pageSize) {
     var start = time()
-    log(`Querying store`)
+    log(`Querying store with page size ${pageSize}`, "blue")
     storeClient.querySoup(STORE_CONFIG, SOUPNAME, {queryType: "range", path:"key", soupName:SOUPNAME, pageSize:2})
         .then(cursor => {
             log(`Query matching ${cursor.totalEntries} entries`)
@@ -71,15 +80,18 @@ function traverseResultSet(cursor, countSeenSoFar, start) {
             })
     } else {
         const elapsedTime = time() - start
-        log(`Query returned ${countSeenSoFar} entries in ${elapsedTime} ms`)
+        log(`Query returned ${countSeenSoFar} entries in ${elapsedTime} ms`, "green")
     }
 }
 
 // Helper function to write output to screen
 // @param msg to write out
-function log(msg) {
-    document.querySelector('#ulConsole').innerHTML = `<li class="table-view-cell"><div class="media-body">${msg}</div></li>`
-        + document.querySelector('#ulConsole').innerHTML 
+// @param color (optional)
+function log(msg, color) {
+    msg = color ? msg.fontcolor(color) : msg
+    document.querySelector('#ulConsole').innerHTML = `<li class="table-view-cell"><div class="media-body">${logLine}: ${msg}</div></li>`
+        + document.querySelector('#ulConsole').innerHTML
+    logLine++
 }
 
 // Helper function to generate entry
@@ -93,11 +105,15 @@ function generateEntry() {
 // @param keyLength
 // @param valueLength
 function generateObject(depth, numberOfChildren, keyLength, valueLength) {
-    var obj = {}
-    for (var i=0; i<numberOfChildren; i++) {
-        obj[generateString(keyLength)] = (depth > 0) ? generateObject(depth-1, numberOfChildren, keyLength, valueLength) : generateString(valueLength)
+    if (depth > 0) {
+        var obj = {}
+        for (var i=0; i<numberOfChildren; i++) {
+            obj[generateString(keyLength)] = generateObject(depth-1, numberOfChildren, keyLength, valueLength) 
+        }
+        return obj
+    } else {
+        return generateString(valueLength)
     }
-    return obj
 }
 
 // Helper function to generate string of length l
@@ -122,7 +138,10 @@ function main() {
     force.login(
         function() {
             log("Auth succeeded") 
+            // Watch for global errors
+            window.onerror = (msg) => { log(`windowError fired with ${msg}`, "red") }
             // Connect buttons
+            document.getElementById('btnClear').addEventListener("click", onClear)
             document.getElementById('btnInsert10').addEventListener("click", () => { onInsert(10) })
             document.getElementById('btnInsert100').addEventListener("click", () => { onInsert(100) })
             document.getElementById('btnQueryAll1By1').addEventListener("click", () => { onQueryAll(1) })
