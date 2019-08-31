@@ -6,8 +6,16 @@
     <link href="ratchet.css" rel="stylesheet">
     <link href="ratchet-theme.css" rel="stylesheet">
     <style>
-        body, .modal, .bar-nav {
+        body, .bar-nav {
             top: env(safe-area-inset-top)
+        }
+    
+        .hidden {
+            display: none
+        }
+    
+        #divSettings input[type=number]{
+            width: 7em
         }
     </style>
    <script src="cordova.js"></script>
@@ -22,46 +30,46 @@
         <button class="btn pull-right" id="btnOpenSettings">Settings</button>
     </header>
     
-    <!-- Settings -->
-    <div id="modalSettings" class="modal">
-        <form class="input-group">
-            <div class="input-row">
+    <div class="content">
+        
+        <!-- Settings -->
+        <ul id="divSettings" class="table-view hidden">
+            <li class="table-view-cell">
                 <label>Use External Storage</label>
                 <input type="checkbox" id="inputUseExternalStorage">
-            </div>
-            <div class="input-row">
+            </li>
+            <li class="table-view-cell">
                 <label>Depth</label>
                 <input type="number" id="inputDepth">
-            </div>
-            <div class="input-row">
+            </li>
+            <li class="table-view-cell">
                 <label>Number of children</label>
                 <input type="number" id="inputNumberOfChildren">
-            </div>
-            <div class="input-row">
+            </li>
+            <li class="table-view-cell">
                 <label>Key length</label>
                 <input type="number" id="inputKeyLength">
-            </div>
-            <div class="input-row">
+            </li>
+            <li class="table-view-cell">
                 <label>Value length</label>
                 <input type="number" id="inputValueLength">
-            </div>
-            <div class="input-row">
+            </li>
+            <li class="table-view-cell">
                 <label>Min character code</label>
                 <input type="number" id="inputMinCharacterCode">
-            </div>
-            <div class="input-row">
+            </li>
+            <li class="table-view-cell">
                 <label>Max character code</label>
                 <input type="number" id="inputMaxCharacterCode">
-            </div>
-            <button class="btn pull-left" id="btnSaveSettings">Save</button>
-            <button class="btn pull-right" id="btnCancelSettings">Cancel</button>
-        </form>
+            </li>
+        </ul>
+
+        <!-- Console -->
+        <ul id="ulConsole" class="table-view">
+        </ul>
+
     </div>
-
-    <!-- Console -->
-    <ul id="ulConsole" class="table-view content">
-    </ul>
-
+        
     <!-- Bottom bar -->
     <nav class="bar bar-footer">
       <button class="btn" id="btnClear">Clear</button>
@@ -69,6 +77,8 @@
       <button class="btn btn-primary" id="btnInsert100">+ 100</button>
       <button class="btn btn-positive" id="btnQueryAll1By1">Q 1 by 1</button>
       <button class="btn btn-positive" id="btnQueryAll10By10">Q 10 by 10</button>
+      <button class="btn btn-primary hidden" id="btnSaveSettings">Save</button>
+      <button class="btn hidden" id="btnCancelSettings">Cancel</button>
     </nav>
 </body>
 </html>

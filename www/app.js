@@ -42,6 +42,30 @@ function setupSoup() {
     })
 }
 
+// Function to show / hide element
+function showHide(id, show) {
+    var classes = document.getElementById(id).classList
+    if (show) {
+        classes.remove("hidden")
+    } else {
+        classes.add("hidden")
+    }
+}
+
+// Function to show / hide settings
+function showHideSettings(show) {
+    showHide("divSettings", show)
+    showHide("btnSaveSettings", show)
+    showHide("btnCancelSettings", show)
+    showHide("ulConsole", !show)
+    showHide("btnOpenSettings", !show)
+    showHide("btnClear", !show)
+    showHide("btnInsert10", !show)
+    showHide("btnInsert100", !show)
+    showHide("btnQueryAll1By1", !show)
+    showHide("btnQueryAll10By10", !show)
+}
+
 // Function invoked when a btnOpenSettings is pressed
 function onOpenSettings() {
     document.getElementById("inputUseExternalStorage").checked = settings.useExternalStorage
@@ -52,7 +76,7 @@ function onOpenSettings() {
     document.getElementById("inputMinCharacterCode").value = settings.minCharacterCode
     document.getElementById("inputMaxCharacterCode").value = settings.maxCharacterCode
     // Show
-    document.getElementById("modalSettings").classList.add("active")
+    showHideSettings(true)
 }
 
 // Function invoked when a btnSaveSettings is pressed
@@ -66,7 +90,8 @@ function onSaveSettings() {
     settings.minCharacterCode = parseInt(document.getElementById("inputMinCharacterCode").value)
     settings.maxCharacterCode = parseInt(document.getElementById("inputMaxCharacterCode").value)
     // Hide
-    document.getElementById("modalSettings").classList.remove("active")
+    showHideSettings(false)
+
     if (originalUseExternalStorage != settings.useExternalStorage) {
         // Recreate soup if storage type changed
         setupSoup()
@@ -76,7 +101,7 @@ function onSaveSettings() {
 // Function invoked when a btnCancelSettings is pressed
 function onCancelSettings() {
     // Hide
-    document.getElementById("modalSettings").classList.remove("active")
+    showHideSettings(false)
 }
 
 // Function invoked when a btnClear is pressed
