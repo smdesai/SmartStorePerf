@@ -3,6 +3,7 @@ const SOUPNAME = "soup"
 const SOUP_FEATURES = ["externalStorage"]
 const INDEX_SPECS = [{path:"key", type:"String"}]
 const STORE_CONFIG = {isGlobalStore:false}
+const PAGE_SIZE = 2
 
 // Shape of entries
 const DEPTH = 2 // depth of json objects
@@ -59,6 +60,7 @@ function onInsert(n, i, start, actuallyAdded) {
     if (i < n) {
         return storeClient.upsertSoupEntries(SOUPNAME, [generateEntry()])
             .then(() => { return onInsert(n, i+1, start, actuallyAdded+1) } )
+            .catch(() => { return onInsert(n, i+1, start, actuallyAdded) } )
     }
     else {
         const elapsedTime = time() - start
@@ -71,7 +73,7 @@ function onInsert(n, i, start, actuallyAdded) {
 function onQueryAll(pageSize) {
     var start = time()
     log(`Querying store with page size ${pageSize}`, "blue")
-    return storeClient.querySoup(STORE_CONFIG, SOUPNAME, {queryType: "range", path:"key", soupName:SOUPNAME, pageSize:2})
+    return storeClient.querySoup(STORE_CONFIG, SOUPNAME, {queryType: "range", path:"key", soupName:SOUPNAME, pageSize:PAGE_SIZE})
         .then(cursor => {
             log(`Query matching ${cursor.totalEntries} entries`)
             return traverseResultSet(cursor, cursor.currentPageOrderedEntries.length, start)
