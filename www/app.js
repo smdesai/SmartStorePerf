@@ -1,64 +1,105 @@
 // Constants
+const INDEX_SPECS = [{path:"key", type:"String"}]
+const STORE_CONFIG = {isGlobalStore:true}
 const SOUPNAME = "soup"
 const SOUP_FEATURES = ["externalStorage"]
-const INDEX_SPECS = [{path:"key", type:"String"}]
-const STORE_CONFIG = {isGlobalStore:false}
-const PAGE_SIZE = 2
 
-// Shape of entries
-const DEPTH = 2 // depth of json objects
-const NUMBER_OF_CHILDREN = 3 // number of branches at each level
-const KEY_LENGTH = 32 // length of keys
-const VALUE_LENGTH = 100 // length of leaf values
-const MIN_CHARACTER_CODE = 32 // smallest character code to use in random strings
-const MAX_CHARACTER_CODE = 255 // largest character code to use in random strings
-const ENTRY_SIZE = JSON.stringify(generateEntry()).length
+// Settings
+var settings = {
+    useExternalStorage: true,
+    // Shape of entries
+    depth: 1,               // depth of json objects
+    numberOfChildren: 16,   // number of branches at each level
+    keyLength: 32,          // length of keys
+    valueLength: 65536,     // length of leaf values
+    minCharacterCode: 1,    // smallest character code to use in random strings
+    maxCharacterCode: 255 // largest character code to use in random strings
+}
 
 // Global variable
 var storeClient
 var logLine = 1
 
 // Sets up soup
-// @return a promise
+// Drop soup if it already exists
 function setupSoup() {
-    return storeClient.soupExists(SOUPNAME)
-        .then(exists => {
-            if (!exists) {
-                log("Registering soup")
-                return storeClient.registerSoupWithSpec({name: SOUPNAME, features: SOUP_FEATURES}, INDEX_SPECS)
-                    .then(() => {
-                        log("Soup registered")
-                        return storeClient.soupExists(SOUPNAME)
-                    })
-            }
-            else {
-                return true
-            }
-        })
+    storeClient.removeSoup(STORE_CONFIG, SOUPNAME)
+    .then(() => {
+          log("Registering soup")
+          const soupSpec = {name: SOUPNAME, features: settings.useExternalStorage ? SOUP_FEATURES : []}
+          return storeClient.registerSoupWithSpec(STORE_CONFIG, soupSpec, INDEX_SPECS)
+      })
+    .then(() => {
+        log("Soup registered")
+        return storeClient.soupExists(STORE_CONFIG, SOUPNAME)
+    })
+    .then((exists) => {
+          if (exists) {
+            log("Verified that soup exists")
+          } else {
+            log("Soup does NOT exist", "red")
+          }
+    })
+}
+
+// Function invoked when a btnOpenSettings is pressed
+function onOpenSettings() {
+    document.getElementById("inputUseExternalStorage").checked = settings.useExternalStorage
+    document.getElementById("inputDepth").value = settings.depth
+    document.getElementById("inputNumberOfChildren").value = settings.numberOfChildren
+    document.getElementById("inputKeyLength").value = settings.keyLength
+    document.getElementById("inputValueLength").value = settings.valueLength
+    document.getElementById("inputMinCharacterCode").value = settings.minCharacterCode
+    document.getElementById("inputMaxCharacterCode").value = settings.maxCharacterCode
+    // Show
+    document.getElementById("modalSettings").classList.add("active")
+}
+
+// Function invoked when a btnSaveSettings is pressed
+function onSaveSettings() {
+    const originalUseExternalStorage = settings.useExternalStorage
+    settings.useExternalStorage = document.getElementById("inputUseExternalStorage").checked
+    settings.depth = parseInt(document.getElementById("inputDepth").value)
+    settings.numberOfChildren = parseInt(document.getElementById("inputNumberOfChildren").value)
+    settings.keyLength = parseInt(document.getElementById("inputKeyLength").value)
+    settings.valueLength = parseInt(document.getElementById("inputValueLength").value)
+    settings.minCharacterCode = parseInt(document.getElementById("inputMinCharacterCode").value)
+    settings.maxCharacterCode = parseInt(document.getElementById("inputMaxCharacterCode").value)
+    // Hide
+    document.getElementById("modalSettings").classList.remove("active")
+    if (originalUseExternalStorage != settings.useExternalStorage) {
+        // Recreate soup if storage type changed
+        setupSoup()
+    }
+}
+
+// Function invoked when a btnCancelSettings is pressed
+function onCancelSettings() {
+    // Hide
+    document.getElementById("modalSettings").classList.remove("active")
 }
 
 // Function invoked when a btnClear is pressed
-// @return a promise
 function onClear() {
-    return storeClient.clearSoup(SOUPNAME)
+    storeClient.clearSoup(STORE_CONFIG, SOUPNAME)
         .then(() => {
             log("Soup cleared")
         })
 }
 
 // Function invoked when a btnInsert* button is pressed
-// @return a promise
 function onInsert(n, i, start, actuallyAdded) {
+    const entrySize = JSON.stringify(generateEntry()).length
     i = i || 0
     start = start || time()
     actuallyAdded = actuallyAdded || 0
 
     if (i == 0) {
-        log(`Adding ${n} entries - ${ENTRY_SIZE} chars each`, "blue")
+        log(`Adding ${n} entries - ${entrySize} chars each`, "blue")
     }
     
     if (i < n) {
-        return storeClient.upsertSoupEntries(SOUPNAME, [generateEntry()])
+        storeClient.upsertSoupEntries(STORE_CONFIG, SOUPNAME, [generateEntry()])
             .then(() => { return onInsert(n, i+1, start, actuallyAdded+1) } )
             .catch(() => { return onInsert(n, i+1, start, actuallyAdded) } )
     }
@@ -69,11 +110,10 @@ function onInsert(n, i, start, actuallyAdded) {
 }
 
 // Function invoked when a btnQueryAll* button is pressed
-// @return a promise
 function onQueryAll(pageSize) {
     var start = time()
     log(`Querying store with page size ${pageSize}`, "blue")
-    return storeClient.querySoup(STORE_CONFIG, SOUPNAME, {queryType: "range", path:"key", soupName:SOUPNAME, pageSize:PAGE_SIZE})
+    storeClient.querySoup(STORE_CONFIG, SOUPNAME, {queryType: "range", path:"key", soupName:SOUPNAME, pageSize:pageSize})
         .then(cursor => {
             log(`Query matching ${cursor.totalEntries} entries`)
             return traverseResultSet(cursor, cursor.currentPageOrderedEntries.length, start)
@@ -105,7 +145,11 @@ function log(msg, color) {
 
 // Helper function to generate entry
 function generateEntry() {
-    return {key:generateString(KEY_LENGTH), value:generateObject(DEPTH, NUMBER_OF_CHILDREN, KEY_LENGTH, VALUE_LENGTH)}
+    return {
+        key: generateString(settings.keyLength),
+        value: generateObject(settings.depth, settings.numberOfChildren, settings.keyLength, settings.valueLength)
+        
+    }
 }
 
 // Helper function to generate object
@@ -130,7 +174,7 @@ function generateObject(depth, numberOfChildren, keyLength, valueLength) {
 function generateString(l) {
     return [...Array(l)].map(() => {
         return String.fromCharCode(
-            Math.random() * (MAX_CHARACTER_CODE-MIN_CHARACTER_CODE) + MIN_CHARACTER_CODE
+            Math.random() * (settings.maxCharacterCode-settings.minCharacterCode) + settings.minCharacterCode
         )
     }).join('')
 }
@@ -150,6 +194,9 @@ function main() {
             // Watch for global errors
             window.onerror = (msg) => { log(`windowError fired with ${msg}`, "red") }
             // Connect buttons
+            document.getElementById('btnOpenSettings').addEventListener("click", onOpenSettings)
+            document.getElementById('btnSaveSettings').addEventListener("click", onSaveSettings)
+            document.getElementById('btnCancelSettings').addEventListener("click", onCancelSettings)
             document.getElementById('btnClear').addEventListener("click", onClear)
             document.getElementById('btnInsert10').addEventListener("click", () => { onInsert(10) })
             document.getElementById('btnInsert100').addEventListener("click", () => { onInsert(100) })
@@ -158,10 +205,7 @@ function main() {
             // Get store client
             storeClient = cordova.require("com.salesforce.plugin.smartstore.client")
             // Sets up soup
-            setupSoup(storeClient)
-                .then(exists => {
-                    log("Verified that soup exists")
-                })
+            setupSoup()
         },
         function(error) {
             log(`Auth failed: ${error}`)
