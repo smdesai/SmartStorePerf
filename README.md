@@ -25,6 +25,9 @@ const MIN_CHARACTER_CODE = 32 // smallest character code to use in random string
 const MAX_CHARACTER_CODE = 65536 // largest character code to use in random strings
 ```
 
+## Issues discovered
+- Bug in `saveSoupEntryExternally` (see https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982 for details)
+
 ## First time setup
 After cloning this repo, you should do:
 ```shell
@@ -74,4 +77,7 @@ Disable encrypting of externally stored files by editing `SFSmartStore.m`, repla
 - `loadExternalSoupEntryAsString:soupTableName` 
 - `saveSoupEntryExternally:soupEntryId:soupTableName`
 
-
+To pretty a json file do:
+```shell
+cat soupelt_xxx | python -mjson.tool
+```
