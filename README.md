@@ -1,6 +1,8 @@
 # Simple application that tries to corrupt SmartStore
 
-## What does the app do?
+## Overview
+
+![Screenshot](Screenshot.png) 
 
 Buttons:
 - clear: to empty the soup
