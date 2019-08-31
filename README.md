@@ -63,3 +63,15 @@ target 'CorruptionTester' do
 	pod 'SalesforceSDKCommon', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v7.2.0'
 end
 ```
+
+## Looking at the externally stored files (when using simulator)
+First find the directory for that soup:
+```shell
+cd ~/Library/Developer/CoreSimulator/Devices/
+find . -name TABLE_1
+```
+Disable encrypting of externally stored files by editing `SFSmartStore.m`, replace `SFSmartStoreEncryptionKeyBlock keyBlock = [SFSmartStore encryptionKeyBlock];` with `SFSmartStoreEncryptionKeyBlock keyBlock = nil;` in:
+- `loadExternalSoupEntryAsString:soupTableName` 
+- `saveSoupEntryExternally:soupEntryId:soupTableName`
+
+
