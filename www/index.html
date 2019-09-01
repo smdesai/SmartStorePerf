@@ -15,7 +15,13 @@
         }
     
         #divSettings input[type=number]{
-            width: 7em
+            width: 5em
+        }
+    
+        #divSettings label {
+            display: block;
+            float: left;
+            width: 10em;
         }
     </style>
    <script src="cordova.js"></script>
@@ -26,14 +32,16 @@
 
     <!-- Header -->
     <header class="bar bar-nav">
-        <h1 class="title">Console</h1>
+        <h1 class="title" id="headerTitle">Console</h1>
         <button class="btn pull-right" id="btnOpenSettings">Settings</button>
+        <button class="btn pull-right btn-positive hidden" id="btnSaveSettings">Save</button>
+        <button class="btn pull-left btn-negative hidden" id="btnCancelSettings">Cancel</button>
     </header>
     
     <div class="content">
         
         <!-- Settings -->
-        <ul id="divSettings" class="table-view hidden">
+        <ul id="divSettings" class="card table-view hidden">
             <li class="table-view-cell">
                 <label>Use External Storage</label>
                 <input type="checkbox" id="inputUseExternalStorage">
@@ -72,13 +80,11 @@
         
     <!-- Bottom bar -->
     <nav class="bar bar-footer">
-      <button class="btn" id="btnClear">Clear</button>
+      <button class="btn btn-negative" id="btnClear">Clear</button>
       <button class="btn btn-primary" id="btnInsert10">+ 10</button>
       <button class="btn btn-primary" id="btnInsert100">+ 100</button>
       <button class="btn btn-positive" id="btnQueryAll1By1">Q 1 by 1</button>
       <button class="btn btn-positive" id="btnQueryAll10By10">Q 10 by 10</button>
-      <button class="btn btn-primary hidden" id="btnSaveSettings">Save</button>
-      <button class="btn hidden" id="btnCancelSettings">Cancel</button>
     </nav>
 </body>
 </html>

@@ -54,6 +54,7 @@ function showHide(id, show) {
 
 // Function to show / hide settings
 function showHideSettings(show) {
+    document.getElementById("headerTitle").innerHTML = show ? "Settings" : "Console"
     showHide("divSettings", show)
     showHide("btnSaveSettings", show)
     showHide("btnCancelSettings", show)
@@ -213,29 +214,23 @@ function time() {
 // Log in if needed
 // Sets up soup if needed
 function main() {
-    force.login(
-        function() {
-            log("Auth succeeded") 
-            // Watch for global errors
-            window.onerror = (msg) => { log(`windowError fired with ${msg}`, "red") }
-            // Connect buttons
-            document.getElementById('btnOpenSettings').addEventListener("click", onOpenSettings)
-            document.getElementById('btnSaveSettings').addEventListener("click", onSaveSettings)
-            document.getElementById('btnCancelSettings').addEventListener("click", onCancelSettings)
-            document.getElementById('btnClear').addEventListener("click", onClear)
-            document.getElementById('btnInsert10').addEventListener("click", () => { onInsert(10) })
-            document.getElementById('btnInsert100').addEventListener("click", () => { onInsert(100) })
-            document.getElementById('btnQueryAll1By1').addEventListener("click", () => { onQueryAll(1) })
-            document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
-            // Get store client
-            storeClient = cordova.require("com.salesforce.plugin.smartstore.client")
-            // Sets up soup
-            setupSoup()
-        },
-        function(error) {
-            log(`Auth failed: ${error}`)
-        }
-    )
+    document.addEventListener("deviceready", function () {
+        // Watch for global errors
+        window.onerror = (msg) => { log(`windowError fired with ${msg}`, "red") }
+        // Connect buttons
+        document.getElementById('btnOpenSettings').addEventListener("click", onOpenSettings)
+        document.getElementById('btnSaveSettings').addEventListener("click", onSaveSettings)
+        document.getElementById('btnCancelSettings').addEventListener("click", onCancelSettings)
+        document.getElementById('btnClear').addEventListener("click", onClear)
+        document.getElementById('btnInsert10').addEventListener("click", () => { onInsert(10) })
+        document.getElementById('btnInsert100').addEventListener("click", () => { onInsert(100) })
+        document.getElementById('btnQueryAll1By1').addEventListener("click", () => { onQueryAll(1) })
+        document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
+        // Get store client
+        storeClient = cordova.require("com.salesforce.plugin.smartstore.client")
+        // Sets up soup
+        setupSoup()
+    })
 }
 
 main()
