@@ -19,22 +19,30 @@ var settings = {
 // Global variable
 var storeClient
 
-// Sets up soup
-// Drop soup if it already exists
-function setupSoup() {
-    log("Setting up soup", "blue")
-    storeClient.removeSoup(STORE_CONFIG, SOUPNAME)
-    .then(() => {
-          const soupSpec = {name: SOUPNAME, features: settings.useExternalStorage ? SOUP_FEATURES : []}
-          return storeClient.registerSoupWithSpec(STORE_CONFIG, soupSpec, INDEX_SPECS)
-      })
-    .then(() => {
-        log("Soup set up", "green")
-        return storeClient.soupExists(STORE_CONFIG, SOUPNAME)
-    })
-    .then((exists) => {
-          if (!exists) log("Soup creation failed", "red")
-    })
+// Sets up soup 
+// If soup already exists:
+// - if dropIfExist is true, the existing soup is removed and a new soup is created
+// - if dropIfExist is false, the existing soup is left alone
+function setupSoup(removeIfExist) {
+    const createSoup = () => {
+        log("Setting up soup", "blue")
+        const soupSpec = {name: SOUPNAME, features: settings.useExternalStorage ? SOUP_FEATURES : []}
+        return storeClient.registerSoupWithSpec(STORE_CONFIG, soupSpec, INDEX_SPECS)
+            .then(() => { log("Soup set up", "green") })
+    }
+    
+    storeClient.soupExists(STORE_CONFIG, SOUPNAME)
+        .then((exists) => {
+            if (exists && removeIfExist) {
+                return storeClient.removeSoup(STORE_CONFIG, SOUPNAME)
+                    .then(() => {
+                        log("Soup removed")
+                        createSoup()
+                    })
+            } else {
+                createSoup()
+            }
+        })
 }
 
 // Function to show / hide element
@@ -90,7 +98,7 @@ function onSaveSettings() {
 
     if (originalUseExternalStorage != settings.useExternalStorage) {
         // Recreate soup if storage type changed
-        setupSoup()
+        setupSoup(true)
     }
 }
 
@@ -118,7 +126,7 @@ function roundedSize(size) {
         return Math.round(size*100 / 1024 / 1024)/100 + " mb"
     }
 }
-     
+
 // Function returning approximate entry size as a string
 function getEntrySizeAsString() {
     return roundedSize(JSON.stringify(generateEntry()).length)
@@ -241,8 +249,8 @@ function main() {
         document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
         // Get store client
         storeClient = cordova.require("com.salesforce.plugin.smartstore.client")
-        // Sets up soup
-        setupSoup()
+        // Sets up soup - don't drop soup if it already exists
+        setupSoup(false)
     })
 }
 
