@@ -1,6 +1,12 @@
 # Simple application that tries to corrupt SmartStore
 
-## Overview
+## Quick links
+1. [Overview](#1-overview)
+2. [Setup](#2-setup)
+3. [Development](#3-development)
+4. [Issues discovered](#4-issues-discovered)
+
+## 1. Overview
 
 ![Screenshot](Screenshot.png) 
 
@@ -31,30 +37,30 @@ Screen shows ouput for most recent operation first:
 - Green is for the end of an operation.
 - Red is for errors.
 
-## Issues discovered
-- Bug in `saveSoupEntryExternally` (see https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982 for details)
+## 2. Setup
 
-## First time setup
+### First time setup
 After cloning this repo, you should do:
 ```shell
 ./install.sh
 ```
 NB: you need forcehybrid installed.
 
-## Running the application
+### Running the application
 To bring up the application in XCode do:
 ```shell
 open ./app/platforms/ios/CorruptionTester.xcworkspace
 ```
+## 3. Development
 
-## Modifying the application locally
+### Modifying the application locally
 Edit files in `./app/platforms/ios/www/`.
 If you have Safari web inspector connected (more info [here](https://developer.apple.com/library/archive/documentation/AppleApplications/Conceptual/Safari_Developer_Guide/GettingStarted/GettingStarted.html)), you can simply do a `reload`. You don't need to relaunch the application.
 
-## Modifying the application for github
+### Modifying the application for github
 Copy any files you changed from to `./app/platforms/ios/www/` to `./www`.
 
-## Pointing to a different version of the Mobile SDK
+### Pointing to a different version of the Mobile SDK
 Simply edit `./app/platforms/ios/Podfile` and change where to get the libraries from.
 For instance, if you used forcehybrid 7.2, it would look something like:
 ```ruby
@@ -73,7 +79,7 @@ target 'CorruptionTester' do
 end
 ```
 
-## Looking at the externally stored files (when using simulator)
+### Looking at the externally stored files (when using simulator)
 First find the directory for that soup:
 ```shell
 cd ~/Library/Developer/CoreSimulator/Devices/
@@ -87,3 +93,5 @@ To pretty a json file do:
 ```shell
 cat soupelt_xxx | python -mjson.tool
 ```
+## 4. Issues discovered
+- Bug in `saveSoupEntryExternally` (see https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982 for details)
