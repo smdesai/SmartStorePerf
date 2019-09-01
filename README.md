@@ -6,12 +6,12 @@
 
 ### Settings screen
 Through the settings screen one can control the shape of the records and whether to use external storage or not:
-- use external storage: whether to use external storage or not
-- depth: depth of json objects
-- number of children: number of branches at each level of the json object
-- key length: length of keys in json object
-- value length: length of leaf values in json object
-- min/max character code: smallest/largest character code to use in random strings generated for keys and leaf value
+- use external storage: whether to use external storage or not.
+- depth: depth of json objects.
+- number of children: number of branches at each level of the json object.
+- key length: length of keys in json object.
+- value length: length of leaf values in json object.
+- min/max character code: smallest/largest character code to use in random strings generated for keys and leaf value.
 
 Actions:
 - save: to update settings and go to console screen. If you change the storage type, the soup gets recreated.
@@ -21,15 +21,15 @@ Actions:
 Through the console screen, insert and query records from smartstore.
 
 Actions:
-- settings: bring up Settings screen
-- clear soup: to empty the soup
-- +10, +100: to insert 10 or 100 large records. The size of records inserted (and the time it took are reported)
-- Q 1 by 1, Q 10 by 10: to query all records from the soup with a page size of 1 and 10 respectively. The number of records founds / expected (and the time it took) are reported.
+- settings: bring up Settings screen.
+- clear soup: to empty the soup.
+- +10, +100: to insert 10 or 100 large records. The size of records inserted (and the time it took are reported).
+- Q 1 by 1, Q 10 by 10: to query all records from the soup with a page size of 1 and 10 respectively. The number of records founds / expected (and the time it took) are reported..
 
 Screen shows ouput for most recent operation first:
-- Blue is for the beginning of a add/query operation
-- Green is for the end of a add/query operation
-- Red is for window.onerror messages
+- Blue is for the beginning of an operation.
+- Green is for the end of an operation.
+- Red is for errors.
 
 ## Issues discovered
 - Bug in `saveSoupEntryExternally` (see https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982 for details)

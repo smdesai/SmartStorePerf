@@ -18,27 +18,22 @@ var settings = {
 
 // Global variable
 var storeClient
-var logLine = 1
 
 // Sets up soup
 // Drop soup if it already exists
 function setupSoup() {
+    log("Setting up soup", "blue")
     storeClient.removeSoup(STORE_CONFIG, SOUPNAME)
     .then(() => {
-          log("Registering soup")
           const soupSpec = {name: SOUPNAME, features: settings.useExternalStorage ? SOUP_FEATURES : []}
           return storeClient.registerSoupWithSpec(STORE_CONFIG, soupSpec, INDEX_SPECS)
       })
     .then(() => {
-        log("Soup registered")
+        log("Soup set up", "green")
         return storeClient.soupExists(STORE_CONFIG, SOUPNAME)
     })
     .then((exists) => {
-          if (exists) {
-            log("Verified that soup exists")
-          } else {
-            log("Soup does NOT exist", "red")
-          }
+          if (!exists) log("Soup creation failed", "red")
     })
 }
 
@@ -113,15 +108,32 @@ function onClear() {
         })
 }
 
+// Function returning rounded size in b, kb or mb
+function roundedSize(size) {
+    if (size < 1024) {
+        return size + " b"
+    } else if (size < 1024 * 1024) {
+        return Math.round(size*100 / 1024)/100 + " kb"
+    } else {
+        return Math.round(size*100 / 1024 / 1024)/100 + " mb"
+    }
+}
+     
+// Function returning approximate entry size as a string
+function getEntrySizeAsString() {
+    return roundedSize(JSON.stringify(generateEntry()).length)
+}
+
+
 // Function invoked when a btnInsert* button is pressed
 function onInsert(n, i, start, actuallyAdded) {
-    const entrySize = JSON.stringify(generateEntry()).length
+    const entrySize = getEntrySizeAsString()
     i = i || 0
     start = start || time()
     actuallyAdded = actuallyAdded || 0
 
     if (i == 0) {
-        log(`Adding ${n} entries - ${entrySize} chars each`, "blue")
+        log(`+ ${n} x ${entrySize}`, "blue")
     }
     
     if (i < n) {
@@ -131,17 +143,17 @@ function onInsert(n, i, start, actuallyAdded) {
     }
     else {
         const elapsedTime = time() - start
-        log(`Added ${actuallyAdded} entries in ${elapsedTime} ms`, "green")
+        log(`+ ${actuallyAdded} in ${elapsedTime} ms`, "green")
     }
 }
 
 // Function invoked when a btnQueryAll* button is pressed
 function onQueryAll(pageSize) {
     var start = time()
-    log(`Querying store with page size ${pageSize}`, "blue")
+    log(`Q with page ${pageSize}`, "blue")
     storeClient.querySoup(STORE_CONFIG, SOUPNAME, {queryType: "range", path:"key", soupName:SOUPNAME, pageSize:pageSize})
         .then(cursor => {
-            log(`Query matching ${cursor.totalEntries} entries`)
+            log(`Q matching ${cursor.totalEntries}`)
             return traverseResultSet(cursor, cursor.currentPageOrderedEntries.length, start)
         })
 }
@@ -155,7 +167,7 @@ function traverseResultSet(cursor, countSeenSoFar, start) {
             })
     } else {
         const elapsedTime = time() - start
-        log(`Query returned ${countSeenSoFar} entries in ${elapsedTime} ms`, "green")
+        log(`Q ${countSeenSoFar} in ${elapsedTime} ms`, "green")
     }
 }
 
@@ -163,10 +175,11 @@ function traverseResultSet(cursor, countSeenSoFar, start) {
 // @param msg to write out
 // @param color (optional)
 function log(msg, color) {
+    var d = new Date()
+    var prefix = new Date().toISOString().slice(14, 23)
     msg = color ? msg.fontcolor(color) : msg
-    document.querySelector('#ulConsole').innerHTML = `<li class="table-view-cell"><div class="media-body">${logLine}: ${msg}</div></li>`
+    document.querySelector('#ulConsole').innerHTML = `<li class="table-view-cell"><div class="media-body">${prefix}: ${msg}</div></li>`
         + document.querySelector('#ulConsole').innerHTML
-    logLine++
 }
 
 // Helper function to generate entry

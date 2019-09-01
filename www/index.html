@@ -23,6 +23,11 @@
             float: left;
             width: 10em;
         }
+    
+        html *
+        {
+           font-family: Courier !important;
+        }
     </style>
    <script src="cordova.js"></script>
    <script src="force.js"></script>
@@ -81,10 +86,10 @@
         
     <!-- Bottom bar -->
     <nav class="bar bar-footer">
-      <button class="btn btn-primary pull-left" id="btnInsert10">+ 10</button>
-      <button class="btn btn-primary pull-left" id="btnInsert100">+ 100</button>
-      <button class="btn btn-positive pull-right" id="btnQueryAll1By1">Q 1 by 1</button>
-      <button class="btn btn-positive pull-right" id="btnQueryAll10By10">Q 10 by 10</button>
+      <button class="btn pull-left" id="btnInsert10">+ 10</button>
+      <button class="btn pull-left" id="btnInsert100">+ 100</button>
+      <button class="btn pull-right" id="btnQueryAll1By1">Q 1 by 1</button>
+      <button class="btn pull-right" id="btnQueryAll10By10">Q 10 by 10</button>
     </nav>
 </body>
 </html>
