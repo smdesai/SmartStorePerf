@@ -5,6 +5,7 @@
 ![Screenshot](Screenshot.png) 
 
 Buttons:
+- settings: to edit settings
 - clear: to empty the soup
 - +10, +100: to insert 10 or 100 large records. The size of records inserted (and the time it took are reported)
 - Q 1 by 1, Q 10 by 10: to query all records from the soup with a page size of 1 and 10 respectively. The number of records founds / expected (and the time it took) are reported
@@ -14,16 +15,14 @@ Screen shows ouput for most recent operation first.
 - Green is for the end of a add/query operation
 - Red is for window.onerror messages
 
-The shape of the records is controlled from the code (see `app.js`):
-```javascript
-// Shape of entries
-const DEPTH = 2 // depth of json objects
-const NUMBER_OF_CHILDREN = 3 // number of branches at each level
-const KEY_LENGTH = 32 // length of keys
-const VALUE_LENGTH = 65536 // length of leaf values
-const MIN_CHARACTER_CODE = 32 // smallest character code to use in random strings
-const MAX_CHARACTER_CODE = 65536 // largest character code to use in random strings
-```
+Through the settings screen one can control the shape of the record and whether to use external storage or not:
+- use external storage: whether to use external storage or not
+- depth: depth of json objects
+- number of children: number of branches at each level of the json object
+- key length: length of keys in json object
+- value length: length of leaf values in json object
+- min/max character code: smallest/largest character code to use in random strings generated for keys and leaf value
+NB: if you change the storage type, the soup gets recreated
 
 ## Issues discovered
 - Bug in `saveSoupEntryExternally` (see https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982 for details)
