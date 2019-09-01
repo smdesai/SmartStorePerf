@@ -34,9 +34,10 @@ function setupSoup(removeIfExist) {
     storeClient.soupExists(STORE_CONFIG, SOUPNAME)
         .then((exists) => {
             if (exists && removeIfExist) {
+                log("Removing soup", "blue")
                 return storeClient.removeSoup(STORE_CONFIG, SOUPNAME)
                     .then(() => {
-                        log("Soup removed")
+                        log("Removed soup", "green")
                         createSoup()
                     })
             } else {
