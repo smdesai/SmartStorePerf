@@ -93,5 +93,13 @@ To pretty a json file do:
 ```shell
 cat soupelt_xxx | python -mjson.tool
 ```
+### To see what Cordova is trying to send across
+Add the following to `CDVWKWebViewEngine.m`'s `userContentController:didReceiveScriptMessage`:
+```objective-c
+NSLog(@"wkscriptmessage---->%@", message.body);
+```
+
 ## 4. Issues discovered
-- Bug in `saveSoupEntryExternally` (see https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982 for details)
+- Bug? in `saveSoupEntryExternally` (see https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982 for details)
+
+- Getting errors during inserts and queries when json contains unicode character 8233 (paragraph separator) - happens on iOS 11.4 but not 12.2 or 13.0
