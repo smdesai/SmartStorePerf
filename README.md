@@ -107,7 +107,7 @@ NSLog(@"js---->%@", js);
 
 ## 4. Issues discovered
 
-### Bug in `saveSoupEntryExternally` 
+### Bug in saveSoupEntryExternally
 When we upsert soup entries that are stored in external files, we use `NSJSONSerialization:writeJSONObject` to write the JSON to a file.
 That method can fail if with certain unicode characters. 
 `saveSoupEntryExternally` should exit with an error, causing the `upsert` to revert.
@@ -116,7 +116,7 @@ But this method returns the number of bytes written so it could return a non zer
 As a result, the file will be cut-off, which will cause issues at query time.
 PR: https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982
 
-Problem: not happening all the time ??
+**Problem: not happening all the time ??**
 
 ### LS/PS handling in JSON vs JavaScript
 Line separator "LS" (U+2028 - character code 8232) and paragraph separator "PS" (U+2029 - character code 8233) are considered line terminators in JavaScript (so need to be escaped in a string) but not in JSON !
@@ -127,7 +127,7 @@ Interestingly, JSON and JavaScript might finally line up in ES2019: https://v8.d
 As a result, a stringified JSON containing non-escaped LS or PS, given to JavaScript should produce a syntax error.
 
 Possible fix:
-Fix Cordova evalJs method to escape those characters before sending them in the webview (here is another bridge that does just that: https://github.com/Lision/WKWebViewJavascriptBridge/blob/master/WKWebViewJavascriptBridge/WKWebViewJavascriptBridgeBase.swift#L112)
+Fix Cordova evalJs method to escape those characters before sending them in the webview. Here is another bridge that does just that: https://github.com/Lision/WKWebViewJavascriptBridge/blob/master/WKWebViewJavascriptBridge/WKWebViewJavascriptBridgeBase.swift#L112)
 PR: https://github.com/forcedotcom/SalesforceMobileSDK-iOS-Hybrid/pull/94
 
-Problem: happening on 11.4 but not on 12 or 13
+**Problem: happening on 11.4 but not on 12 or 13**
