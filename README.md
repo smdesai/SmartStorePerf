@@ -93,13 +93,41 @@ To pretty a json file do:
 ```shell
 cat soupelt_xxx | python -mjson.tool
 ```
-### To see what Cordova is trying to send across
+### To see what's coming from JavaScript
 Add the following to `CDVWKWebViewEngine.m`'s `userContentController:didReceiveScriptMessage`:
 ```objective-c
 NSLog(@"wkscriptmessage---->%@", message.body);
 ```
 
-## 4. Issues discovered
-- Bug? in `saveSoupEntryExternally` (see https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982 for details)
+### To see what's going to JavaScript
+Add the following to `CDVCommandDelegateImpl.m`'s `evalJsHelper2`
+```objective-c
+NSLog(@"js---->%@", js);
+```
 
-- Getting errors during inserts and queries when json contains unicode character 8233 (paragraph separator) - happens on iOS 11.4 but not 12.2 or 13.0
+## 4. Issues discovered
+
+### Bug in `saveSoupEntryExternally` 
+When we upsert soup entries that are stored in external files, we use `NSJSONSerialization:writeJSONObject` to write the JSON to a file.
+That method can fail if with certain unicode characters. 
+`saveSoupEntryExternally` should exit with an error, causing the `upsert` to revert.
+Unfoturnately, we were looking at the return value `NSJSONSerialization:writeJSONObject` to decide if an error occurred.
+But this method returns the number of bytes written so it could return a non zero value even though it fails to write the entire JSON.
+As a result, the file will be cut-off, which will cause issues at query time.
+PR: https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982
+
+Problem: not happening all the time ??
+
+### LS/PS handling in JSON vs JavaScript
+Line separator "LS" (U+2028 - character code 8232) and paragraph separator "PS" (U+2029 - character code 8233) are considered line terminators in JavaScript (so need to be escaped in a string) but not in JSON !
+
+For more information see http://timelessrepo.com/json-isnt-a-javascript-subset. 
+Interestingly, JSON and JavaScript might finally line up in ES2019: https://v8.dev/features/subsume-json.
+
+As a result, a stringified JSON containing non-escaped LS or PS, given to JavaScript should produce a syntax error.
+
+Possible fix:
+Fix Cordova evalJs method to escape those characters before sending them in the webview (here is another bridge that does just that: https://github.com/Lision/WKWebViewJavascriptBridge/blob/master/WKWebViewJavascriptBridge/WKWebViewJavascriptBridgeBase.swift#L112)
+PR: https://github.com/forcedotcom/SalesforceMobileSDK-iOS-Hybrid/pull/94
+
+Problem: happening on 11.4 but not on 12 or 13
