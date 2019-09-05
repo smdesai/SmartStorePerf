@@ -24,7 +24,7 @@ var presetDefault = {
     keyLength: 32,          // length of keys
     valueLength: 1024,      // length of leaf values
     minCharacterCode: 1,    // smallest character code to use in random strings
-    maxCharacterCode: 65536 // largest character code to use in random strings
+    maxCharacterCode: 65535 // largest character code to use in random strings
 }
 
 var presetFlat = {
@@ -43,7 +43,7 @@ var presetDeep = {
 
 // Global variables
 var storeClient
-var settings = presetDefault
+var settings = Object.assign({}, presetDefault)
 
 // Sets up soup 
 // If soup already exists:
