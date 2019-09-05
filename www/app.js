@@ -7,13 +7,13 @@ const SMART_QUERY = "select {soup:key}, {soup:_soup} from {soup}"
 
 // Preset settings
 const presetAscii = {
-    minCharacterCode: 32,
-    maxCharacterCode: 255
+    minCharacterCode: "20",
+    maxCharacterCode: "FF"
 }
 
 const presetLsFs = {
-    minCharacterCode: 8232,
-    maxCharacterCode: 8233
+    minCharacterCode: "2028",
+    maxCharacterCode: "2029"
 }
 
 var presetDefault = {
@@ -23,8 +23,8 @@ var presetDefault = {
     numberOfChildren: 1,    // number of branches at each level
     keyLength: 32,          // length of keys
     valueLength: 1024,      // length of leaf values
-    minCharacterCode: 1,    // smallest character code to use in random strings
-    maxCharacterCode: 65535 // largest character code to use in random strings
+    minCharacterCode: "1",   // smallest character code to use in random strings
+    maxCharacterCode: "FFFF" // largest character code to use in random strings
 }
 
 var presetFlat = {
@@ -133,8 +133,8 @@ function onSaveSettings() {
     settings.numberOfChildren = parseInt(document.getElementById("inputNumberOfChildren").value)
     settings.keyLength = parseInt(document.getElementById("inputKeyLength").value)
     settings.valueLength = parseInt(document.getElementById("inputValueLength").value)
-    settings.minCharacterCode = parseInt(document.getElementById("inputMinCharacterCode").value)
-    settings.maxCharacterCode = parseInt(document.getElementById("inputMaxCharacterCode").value)
+    settings.minCharacterCode = document.getElementById("inputMinCharacterCode").value
+    settings.maxCharacterCode = document.getElementById("inputMaxCharacterCode").value
     // Hide
     showHideSettings(false)
 
@@ -262,9 +262,11 @@ function generateObject(depth, numberOfChildren, keyLength, valueLength) {
 // Helper function to generate string of length l
 // @param l desired length
 function generateString(l) {
+    var minCh = parseInt(settings.minCharacterCode, 16)
+    var maxCh = parseInt(settings.minCharacterCode, 16)
     return [...Array(l)].map(() => {
         return String.fromCharCode(
-            Math.random() * (settings.maxCharacterCode+1-settings.minCharacterCode) + settings.minCharacterCode
+            Math.random() * (maxCh+1-minCh) + minCh
         )
     }).join('')
 }

@@ -111,7 +111,7 @@ NSLog(@"js---->%@", js);
 When we upsert soup entries that are stored in external files, we use `NSJSONSerialization:writeJSONObject` to write the JSON to a file.
 
 That method can fail with certain unicode characters (lone unpaired surrogate e.g. U+D800). 
-Strings containing these invalid characters are valid according to the JSON grammar but handled in different ways by different parsers. See http://seriot.ch/parsing_json.php for more information.
+Strings containing these invalid characters are handled in different ways by different parsers. See http://seriot.ch/parsing_json.php for more information.
 
 `saveSoupEntryExternally` should exit with an error, causing the `upsert` to revert.
 Because we were looking at the return value (number of bytes written) of `NSJSONSerialization:writeJSONObject` to decide if an error occurred (because the documentation says 0 should be returned if an error occurs) and an non-zero value is returned (with an error) when such characters are present, we could end up with a cut-off file, which causes issues at query time.
