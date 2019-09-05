@@ -15,13 +15,13 @@
         }
     
         #divSettings input[type=number]{
-            width: 5em
+            width: 7em
         }
     
         #divSettings label {
             display: block;
             float: left;
-            width: 10em;
+            width: 9em;
         }
     
         html *
@@ -86,10 +86,16 @@
         
     <!-- Bottom bar -->
     <nav class="bar bar-footer">
+      <!-- Buttons for main screen -->
       <button class="btn pull-left" id="btnInsert10">+ 10</button>
       <button class="btn pull-left" id="btnInsert100">+ 100</button>
       <button class="btn pull-right" id="btnQueryAll1By1">Q 1 by 1</button>
       <button class="btn pull-right" id="btnQueryAll10By10">Q 10 by 10</button>
+      <!-- Buttons for settings screen -->
+      <button class="btn pull-left hidden" id="btnPresetAscii">ASCII</button>
+      <button class="btn pull-left hidden" id="btnPresetLsFs">LS/FS</button>
+      <button class="btn pull-right hidden" id="btnPresetDeep">Deep</button>
+      <button class="btn pull-right hidden" id="btnPresetShallow">Shallow</button>
     </nav>
 </body>
 </html>

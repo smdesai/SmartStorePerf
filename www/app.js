@@ -5,19 +5,45 @@ const SOUPNAME = "soup"
 const SOUP_FEATURES = ["externalStorage"]
 
 // Settings
-var settings = {
+const defaultSettings = {
     useExternalStorage: true,
     // Shape of entries
-    depth: 1,               // depth of json objects
-    numberOfChildren: 16,   // number of branches at each level
+    depth: 0,               // depth of json objects
+    numberOfChildren: 1,    // number of branches at each level
     keyLength: 32,          // length of keys
-    valueLength: 65536,     // length of leaf values
+    valueLength: 1048576,   // length of leaf values
     minCharacterCode: 1,    // smallest character code to use in random strings
-    maxCharacterCode: 255 // largest character code to use in random strings
+    maxCharacterCode: 65536 // largest character code to use in random strings
 }
 
-// Global variable
+// Preset settings
+const presetAscii = {
+    minCharacterCode: 32,
+    maxCharacterCode: 255
+}
+
+const presetLsFs = {
+    minCharacterCode: 8232,
+    maxCharacterCode: 8233
+}
+
+var presetShallow = {
+    depth: 1,
+    numberOfChildren: 16,
+    keyLength: 16,
+    valueLength: 65536
+}
+
+var presetDeep = {
+    depth: 4,
+    numberOfChildren: 2,
+    keyLength: 16,
+    valueLength: 65536
+}
+
+// Global variables
 var storeClient
+var settings = defaultSettings
 
 // Sets up soup 
 // If soup already exists:
@@ -62,6 +88,10 @@ function showHideSettings(show) {
     showHide("divSettings", show)
     showHide("btnSaveSettings", show)
     showHide("btnCancelSettings", show)
+    showHide("btnPresetAscii", show)
+    showHide("btnPresetLsFs", show)
+    showHide("btnPresetDeep", show)
+    showHide("btnPresetShallow", show)
     showHide("ulConsole", !show)
     showHide("btnOpenSettings", !show)
     showHide("btnClear", !show)
@@ -71,17 +101,27 @@ function showHideSettings(show) {
     showHide("btnQueryAll10By10", !show)
 }
 
+// Function to populate inputs in settings screen
+function populateSettingsInputs(s) {
+    if (s.hasOwnProperty("useExternalStorage")) document.getElementById("inputUseExternalStorage").checked = s.useExternalStorage
+    if (s.hasOwnProperty("depth")) document.getElementById("inputDepth").value = s.depth
+    if (s.hasOwnProperty("numberOfChildren")) document.getElementById("inputNumberOfChildren").value = s.numberOfChildren
+    if (s.hasOwnProperty("keyLength")) document.getElementById("inputKeyLength").value = s.keyLength
+    if (s.hasOwnProperty("valueLength")) document.getElementById("inputValueLength").value = s.valueLength
+    if (s.hasOwnProperty("minCharacterCode")) document.getElementById("inputMinCharacterCode").value = s.minCharacterCode
+    if (s.hasOwnProperty("maxCharacterCode")) document.getElementById("inputMaxCharacterCode").value = s.maxCharacterCode
+}
+
 // Function invoked when a btnOpenSettings is pressed
 function onOpenSettings() {
-    document.getElementById("inputUseExternalStorage").checked = settings.useExternalStorage
-    document.getElementById("inputDepth").value = settings.depth
-    document.getElementById("inputNumberOfChildren").value = settings.numberOfChildren
-    document.getElementById("inputKeyLength").value = settings.keyLength
-    document.getElementById("inputValueLength").value = settings.valueLength
-    document.getElementById("inputMinCharacterCode").value = settings.minCharacterCode
-    document.getElementById("inputMaxCharacterCode").value = settings.maxCharacterCode
+    populateSettingsInputs(settings)
     // Show
     showHideSettings(true)
+}
+
+// Function invoked when one of the preset button is pressed
+function onPreset(s) {
+    populateSettingsInputs(s)
 }
 
 // Function invoked when a btnSaveSettings is pressed
@@ -222,7 +262,7 @@ function generateObject(depth, numberOfChildren, keyLength, valueLength) {
 function generateString(l) {
     return [...Array(l)].map(() => {
         return String.fromCharCode(
-            Math.random() * (settings.maxCharacterCode-settings.minCharacterCode) + settings.minCharacterCode
+            Math.random() * (settings.maxCharacterCode+1-settings.minCharacterCode) + settings.minCharacterCode
         )
     }).join('')
 }
@@ -248,6 +288,11 @@ function main() {
         document.getElementById('btnInsert100').addEventListener("click", () => { onInsert(100) })
         document.getElementById('btnQueryAll1By1').addEventListener("click", () => { onQueryAll(1) })
         document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
+        document.getElementById('btnPresetAscii').addEventListener("click", () => { onPreset(presetAscii) })
+        document.getElementById('btnPresetLsFs').addEventListener("click", () => { onPreset(presetLsFs) })
+        document.getElementById('btnPresetShallow').addEventListener("click", () => { onPreset(presetShallow) })
+        document.getElementById('btnPresetDeep').addEventListener("click", () => { onPreset(presetDeep) })
+                              
         // Get store client
         storeClient = cordova.require("com.salesforce.plugin.smartstore.client")
         // Sets up soup - don't drop soup if it already exists
