@@ -3,18 +3,7 @@ const INDEX_SPECS = [{path:"key", type:"String"}]
 const STORE_CONFIG = {isGlobalStore:true}
 const SOUPNAME = "soup"
 const SOUP_FEATURES = ["externalStorage"]
-
-// Settings
-const defaultSettings = {
-    useExternalStorage: true,
-    // Shape of entries
-    depth: 0,               // depth of json objects
-    numberOfChildren: 1,    // number of branches at each level
-    keyLength: 32,          // length of keys
-    valueLength: 1048576,   // length of leaf values
-    minCharacterCode: 1,    // smallest character code to use in random strings
-    maxCharacterCode: 65536 // largest character code to use in random strings
-}
+const SMART_QUERY = "select {soup:key}, {soup:_soup} from {soup}"
 
 // Preset settings
 const presetAscii = {
@@ -27,7 +16,18 @@ const presetLsFs = {
     maxCharacterCode: 8233
 }
 
-var presetShallow = {
+var presetDefault = {
+    useExternalStorage: true,
+    // Shape of entries
+    depth: 0,               // depth of json objects
+    numberOfChildren: 1,    // number of branches at each level
+    keyLength: 32,          // length of keys
+    valueLength: 1024,      // length of leaf values
+    minCharacterCode: 1,    // smallest character code to use in random strings
+    maxCharacterCode: 65536 // largest character code to use in random strings
+}
+
+var presetFlat = {
     depth: 1,
     numberOfChildren: 16,
     keyLength: 16,
@@ -43,7 +43,7 @@ var presetDeep = {
 
 // Global variables
 var storeClient
-var settings = defaultSettings
+var settings = presetDefault
 
 // Sets up soup 
 // If soup already exists:
@@ -90,8 +90,9 @@ function showHideSettings(show) {
     showHide("btnCancelSettings", show)
     showHide("btnPresetAscii", show)
     showHide("btnPresetLsFs", show)
+    showHide("btnPresetDefault", show)
     showHide("btnPresetDeep", show)
-    showHide("btnPresetShallow", show)
+    showHide("btnPresetFlat", show)
     showHide("ulConsole", !show)
     showHide("btnOpenSettings", !show)
     showHide("btnClear", !show)
@@ -151,9 +152,10 @@ function onCancelSettings() {
 
 // Function invoked when a btnClear is pressed
 function onClear() {
+    log("Clearing soup", "blue")
     storeClient.clearSoup(STORE_CONFIG, SOUPNAME)
         .then(() => {
-            log("Soup cleared")
+            log("Soup cleared", "green")
         })
 }
 
@@ -200,7 +202,7 @@ function onInsert(n, i, start, actuallyAdded) {
 function onQueryAll(pageSize) {
     var start = time()
     log(`Q with page ${pageSize}`, "blue")
-    storeClient.querySoup(STORE_CONFIG, SOUPNAME, {queryType: "range", path:"key", soupName:SOUPNAME, pageSize:pageSize})
+    storeClient.runSmartQuery(STORE_CONFIG, {queryType: "smart", smartSql:SMART_QUERY, pageSize:pageSize})
         .then(cursor => {
             log(`Q matching ${cursor.totalEntries}`)
             return traverseResultSet(cursor, cursor.currentPageOrderedEntries.length, start)
@@ -290,7 +292,8 @@ function main() {
         document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
         document.getElementById('btnPresetAscii').addEventListener("click", () => { onPreset(presetAscii) })
         document.getElementById('btnPresetLsFs').addEventListener("click", () => { onPreset(presetLsFs) })
-        document.getElementById('btnPresetShallow').addEventListener("click", () => { onPreset(presetShallow) })
+        document.getElementById('btnPresetDefault').addEventListener("click", () => { onPreset(presetDefault) })
+        document.getElementById('btnPresetFlat').addEventListener("click", () => { onPreset(presetFlat) })
         document.getElementById('btnPresetDeep').addEventListener("click", () => { onPreset(presetDeep) })
                               
         // Get store client
