@@ -50,9 +50,9 @@ var settings = defaultSettings
 // - if dropIfExist is true, the existing soup is removed and a new soup is created
 // - if dropIfExist is false, the existing soup is left alone
 function setupSoup(removeIfExist) {
-    const createSoup = () => {
+    var createSoup = () => {
         log("Setting up soup", "blue")
-        const soupSpec = {name: SOUPNAME, features: settings.useExternalStorage ? SOUP_FEATURES : []}
+        var soupSpec = {name: SOUPNAME, features: settings.useExternalStorage ? SOUP_FEATURES : []}
         return storeClient.registerSoupWithSpec(STORE_CONFIG, soupSpec, INDEX_SPECS)
             .then(() => { log("Soup set up", "green") })
     }
@@ -126,7 +126,7 @@ function onPreset(s) {
 
 // Function invoked when a btnSaveSettings is pressed
 function onSaveSettings() {
-    const originalUseExternalStorage = settings.useExternalStorage
+    var originalUseExternalStorage = settings.useExternalStorage
     settings.useExternalStorage = document.getElementById("inputUseExternalStorage").checked
     settings.depth = parseInt(document.getElementById("inputDepth").value)
     settings.numberOfChildren = parseInt(document.getElementById("inputNumberOfChildren").value)
@@ -176,7 +176,7 @@ function getEntrySizeAsString() {
 
 // Function invoked when a btnInsert* button is pressed
 function onInsert(n, i, start, actuallyAdded) {
-    const entrySize = getEntrySizeAsString()
+    var entrySize = getEntrySizeAsString()
     i = i || 0
     start = start || time()
     actuallyAdded = actuallyAdded || 0
@@ -191,7 +191,7 @@ function onInsert(n, i, start, actuallyAdded) {
             .catch(() => { return onInsert(n, i+1, start, actuallyAdded) } )
     }
     else {
-        const elapsedTime = time() - start
+        var elapsedTime = time() - start
         log(`+ ${actuallyAdded} in ${elapsedTime} ms`, "green")
     }
 }
@@ -215,7 +215,7 @@ function traverseResultSet(cursor, countSeenSoFar, start) {
                 return traverseResultSet(cursor, countSeenSoFar + cursor.currentPageOrderedEntries.length, start)
             })
     } else {
-        const elapsedTime = time() - start
+        var elapsedTime = time() - start
         log(`Q ${countSeenSoFar} in ${elapsedTime} ms`, "green")
     }
 }
