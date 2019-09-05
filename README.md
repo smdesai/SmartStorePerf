@@ -109,14 +109,16 @@ NSLog(@"js---->%@", js);
 
 ### Bug in saveSoupEntryExternally
 When we upsert soup entries that are stored in external files, we use `NSJSONSerialization:writeJSONObject` to write the JSON to a file.
-That method can fail if with certain unicode characters. 
+
+That method can fail with certain unicode characters (lone unpaired surrogate e.g. U+D800). 
+Strings containing these invalid characters are valid according to the JSON grammar but handled in different ways by different parsers. See http://seriot.ch/parsing_json.php for more information.
+
 `saveSoupEntryExternally` should exit with an error, causing the `upsert` to revert.
-Unfoturnately, we were looking at the return value `NSJSONSerialization:writeJSONObject` to decide if an error occurred.
-But this method returns the number of bytes written so it could return a non zero value even though it fails to write the entire JSON.
-As a result, the file will be cut-off, which will cause issues at query time.
+Because we were looking at the return value (number of bytes written) of `NSJSONSerialization:writeJSONObject` to decide if an error occurred (because the documentation says 0 should be returned if an error occurs) and an non-zero value is returned (with an error) when such characters are present, we could end up with a cut-off file, which causes issues at query time.
+
 PR: https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982
 
-**Problem: not happening all the time ??**
+**Question: can such invalid characters happen in the wild?**
 
 ### LS/PS handling in JSON vs JavaScript
 Line separator "LS" (U+2028 - character code 8232) and paragraph separator "PS" (U+2029 - character code 8233) are considered line terminators in JavaScript (so need to be escaped in a string) but not in JSON !
