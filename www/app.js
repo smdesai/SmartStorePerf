@@ -263,7 +263,7 @@ function generateObject(depth, numberOfChildren, keyLength, valueLength) {
 // @param l desired length
 function generateString(l) {
     var minCh = parseInt(settings.minCharacterCode, 16)
-    var maxCh = parseInt(settings.minCharacterCode, 16)
+    var maxCh = parseInt(settings.maxCharacterCode, 16)
     return [...Array(l)].map(() => {
         return String.fromCharCode(
             Math.random() * (maxCh+1-minCh) + minCh
