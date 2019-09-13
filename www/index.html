@@ -31,6 +31,7 @@
     </style>
    <script src="cordova.js"></script>
    <script src="force.js"></script>
+   <script src="validCodePoints.js"></script>
    <script src="app.js"></script>
 </head>
 <body>
@@ -69,12 +70,16 @@
                 <input type="number" id="inputValueLength">
             </li>
             <li class="table-view-cell">
-                <label>Min character code</label>
-                <input type="string" id="inputMinCharacterCode">
+                <label>Valid ch only</label>
+                <input type="checkbox" id="inputValidCodePointsOnly">
+            </li>            
+            <li class="table-view-cell">
+                <label>Min code point</label>
+                <input type="string" id="inputMinCodePoint">
             </li>
             <li class="table-view-cell">
-                <label>Max character code</label>
-                <input type="string" id="inputMaxCharacterCode">
+                <label>Max code pont</label>
+                <input type="string" id="inputMaxCodePoint">
             </li>
         </ul>
 
@@ -93,7 +98,7 @@
       <button class="btn pull-right" id="btnQueryAll10By10">Q 10 by 10</button>
       <!-- Buttons for settings screen -->
       <button class="btn hidden" id="btnPresetAscii">ASCII</button>
-      <button class="btn hidden" id="btnPresetLsFs">LS/FS</button>
+      <button class="btn hidden" id="btnPresetLsPs">LS/PS</button>
       <button class="btn hidden" id="btnPresetDefault">Default</button>
       <button class="btn hidden" id="btnPresetDeep">Deep</button>
       <button class="btn hidden" id="btnPresetFlat">Flat</button>

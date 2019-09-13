@@ -5,26 +5,30 @@ const SOUPNAME = "soup"
 const SOUP_FEATURES = ["externalStorage"]
 const SMART_QUERY = "select {soup:key}, {soup:_soup} from {soup}"
 
+// Expand VALID_CODEPOINTS
+const EXPANDED_VALID_CODEPOINTS = VALID_CODEPOINTS.map((elt)=> { if(elt instanceof Array) { return Array(elt[1]-elt[0]+1).fill().map((e,i)=>elt[0]+i) } else { return elt} }).flat()
+
 // Preset settings
 const presetAscii = {
-    minCharacterCode: "20",
-    maxCharacterCode: "FF"
+    minCodePoint: "20",
+    maxCodePoint: "FF"
 }
 
-const presetLsFs = {
-    minCharacterCode: "2028",
-    maxCharacterCode: "2029"
+const presetLsPs = {
+    minCodePoint: "2028",
+    maxCodePoint: "2029"
 }
 
 var presetDefault = {
     useExternalStorage: true,
     // Shape of entries
-    depth: 0,               // depth of json objects
-    numberOfChildren: 1,    // number of branches at each level
-    keyLength: 32,          // length of keys
-    valueLength: 1024,      // length of leaf values
-    minCharacterCode: "1",   // smallest character code to use in random strings
-    maxCharacterCode: "FFFF" // largest character code to use in random strings
+    depth: 0,                   // depth of json objects
+    numberOfChildren: 1,        // number of branches at each level
+    keyLength: 32,              // length of keys
+    valueLength: 1024,          // length of leaf values
+    validCodePointsOnly: true,  // only use valid unicode code points
+    minCodePoint: "1",          // smallest code point to use in random strings
+    maxCodePoint: "10FFFF"      // largest code point to use in random strings
 }
 
 var presetFlat = {
@@ -89,7 +93,7 @@ function showHideSettings(show) {
     showHide("btnSaveSettings", show)
     showHide("btnCancelSettings", show)
     showHide("btnPresetAscii", show)
-    showHide("btnPresetLsFs", show)
+    showHide("btnPresetLsPs", show)
     showHide("btnPresetDefault", show)
     showHide("btnPresetDeep", show)
     showHide("btnPresetFlat", show)
@@ -109,8 +113,9 @@ function populateSettingsInputs(s) {
     if (s.hasOwnProperty("numberOfChildren")) document.getElementById("inputNumberOfChildren").value = s.numberOfChildren
     if (s.hasOwnProperty("keyLength")) document.getElementById("inputKeyLength").value = s.keyLength
     if (s.hasOwnProperty("valueLength")) document.getElementById("inputValueLength").value = s.valueLength
-    if (s.hasOwnProperty("minCharacterCode")) document.getElementById("inputMinCharacterCode").value = s.minCharacterCode
-    if (s.hasOwnProperty("maxCharacterCode")) document.getElementById("inputMaxCharacterCode").value = s.maxCharacterCode
+    if (s.hasOwnProperty("validCodePointsOnly")) document.getElementById("inputValidCodePointsOnly").checked = s.validCodePointsOnly
+    if (s.hasOwnProperty("minCodePoint")) document.getElementById("inputMinCodePoint").value = s.minCodePoint
+    if (s.hasOwnProperty("maxCodePoint")) document.getElementById("inputMaxCodePoint").value = s.maxCodePoint
 }
 
 // Function invoked when a btnOpenSettings is pressed
@@ -133,8 +138,9 @@ function onSaveSettings() {
     settings.numberOfChildren = parseInt(document.getElementById("inputNumberOfChildren").value)
     settings.keyLength = parseInt(document.getElementById("inputKeyLength").value)
     settings.valueLength = parseInt(document.getElementById("inputValueLength").value)
-    settings.minCharacterCode = document.getElementById("inputMinCharacterCode").value
-    settings.maxCharacterCode = document.getElementById("inputMaxCharacterCode").value
+    settings.validCodePointsOnly = document.getElementById("inputValidCodePointsOnly").checked
+    settings.minCodePoint = document.getElementById("inputMinCodePoint").value
+    settings.maxCodePoint = document.getElementById("inputMaxCodePoint").value
     // Hide
     showHideSettings(false)
 
@@ -235,10 +241,16 @@ function log(msg, color) {
 
 // Helper function to generate entry
 function generateEntry() {
-    return {
-        key: generateString(settings.keyLength),
-        value: generateObject(settings.depth, settings.numberOfChildren, settings.keyLength, settings.valueLength)
-        
+    try {
+        return {
+            key: generateString(settings.keyLength),
+            value: generateObject(settings.depth, settings.numberOfChildren, settings.keyLength, settings.valueLength)
+            
+        }
+    }
+    catch (err) {
+        log(`Could not generate entry: ${err.message}`, "red")
+        throw err
     }
 }
 
@@ -262,13 +274,37 @@ function generateObject(depth, numberOfChildren, keyLength, valueLength) {
 // Helper function to generate string of length l
 // @param l desired length
 function generateString(l) {
-    var minCh = parseInt(settings.minCharacterCode, 16)
-    var maxCh = parseInt(settings.maxCharacterCode, 16)
-    return [...Array(l)].map(() => {
-        return String.fromCharCode(
-            Math.random() * (maxCh+1-minCh) + minCh
-        )
-    }).join('')
+    var minCodePoint = parseInt(settings.minCodePoint, 16)
+    var maxCodePoint = parseInt(settings.maxCodePoint, 16)
+    if (settings.validCodePointsOnly) {
+        var minCodePointIndex = indexOfClosestCodePoint(minCodePoint)
+        var maxCodePointIndex = indexOfClosestCodePoint(maxCodePoint)
+
+        if (minCodePointIndex == -1 || EXPANDED_VALID_CODEPOINTS[minCodePointIndex] > maxCodePoint) {
+            throw "No valid characters in the 0x" + settings.minCodePoint + " .. 0x" + settings.maxCodePoint + " range"
+        }
+        
+        return [...Array(l)].map(() => {
+            return String.fromCodePoint(EXPANDED_VALID_CODEPOINTS[Math.floor(Math.random() * (maxCodePointIndex+1-minCodePointIndex) + minCodePointIndex)])
+        }).join('')
+    }
+    else {
+        return [...Array(l)].map(() => {
+            return String.fromCodePoint(Math.floor(Math.random() * (maxCodePoint+1-minCodePoint) + minCodePoint))
+        }).join('')
+    }
+}
+
+// Return index of codePoint in EXPANDED_VALID_CODEPOINTS if codePoint is valid
+// or closest valid codePoint that follows if there is one
+// or -1 if no valid codePoint follows
+function indexOfClosestCodePoint(codePoint) {
+    for (var i=0; i<EXPANDED_VALID_CODEPOINTS.length; i++) {
+        if (EXPANDED_VALID_CODEPOINTS[i] >= codePoint) {
+            return i;
+        }
+    }
+    return -1;
 }
 
 // Helper function to return current time in ms
@@ -282,7 +318,9 @@ function time() {
 function main() {
     document.addEventListener("deviceready", function () {
         // Watch for global errors
-        window.onerror = (msg) => { log(`windowError fired with ${msg}`, "red") }
+        window.onerror = (message, source, lineno, colno, error) => {
+            log(`windowError fired with ${message}`, "red")
+        }
         // Connect buttons
         document.getElementById('btnOpenSettings').addEventListener("click", onOpenSettings)
         document.getElementById('btnSaveSettings').addEventListener("click", onSaveSettings)
@@ -293,7 +331,7 @@ function main() {
         document.getElementById('btnQueryAll1By1').addEventListener("click", () => { onQueryAll(1) })
         document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
         document.getElementById('btnPresetAscii').addEventListener("click", () => { onPreset(presetAscii) })
-        document.getElementById('btnPresetLsFs').addEventListener("click", () => { onPreset(presetLsFs) })
+        document.getElementById('btnPresetLsPs').addEventListener("click", () => { onPreset(presetLsPs) })
         document.getElementById('btnPresetDefault').addEventListener("click", () => { onPreset(presetDefault) })
         document.getElementById('btnPresetFlat').addEventListener("click", () => { onPreset(presetFlat) })
         document.getElementById('btnPresetDeep').addEventListener("click", () => { onPreset(presetDeep) })

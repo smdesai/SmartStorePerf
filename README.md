@@ -17,11 +17,19 @@ Through the settings screen one can control the shape of the records and whether
 - number of children: number of branches at each level of the json object.
 - key length: length of keys in json object.
 - value length: length of leaf values in json object.
-- min/max character code: smallest/largest character code to use in random strings generated for keys and leaf value.
+- valid ch only: whether to only use valid unicode code points (full list downloaded from http://www.unicode.org/ by `install.sh`)
+- min/max code point: smallest/largest code point (in hex) to use in random strings generated for keys and leaf value.
 
 Actions:
 - save: to update settings and go to console screen. If you change the storage type, the soup gets recreated.
 - cancel: to go to console screen without updating settings.
+
+Bottom bar actions for selecting pre-set settings:
+- ascii: use ascii range
+- ls/ps: use line separator / paragraph separator range
+- default: go back to default settings
+- deep: deep objects (depth 4, number of children 2, value length: 65536 -> so 16 leaves with 64k value each)
+- flat : flat objects (depth 1, number of children 16, value length: 65536 -> so 16 leaves with 64k value each)
 
 ### Console screen:
 Through the console screen, insert and query records from smartstore.
