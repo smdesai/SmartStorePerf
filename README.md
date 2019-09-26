@@ -59,6 +59,9 @@ To bring up the application in XCode do:
 ```shell
 open ./app/platforms/ios/CorruptionTester.xcworkspace
 ```
+
+Or open ./app/platforms/android in AndroidStudio.
+
 ## 3. Development
 
 ### Modifying the application locally
