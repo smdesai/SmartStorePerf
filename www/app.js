@@ -1,8 +1,6 @@
 // Constants
-const INDEX_SPECS = [{path:"key", type:"string"}]
 const STORE_CONFIG = {isGlobalStore:true}
 const SOUPNAME = "soup"
-const SOUP_FEATURES = ["externalStorage"]
 const SMART_QUERY = "select {soup:key}, {soup:_soup} from {soup}"
 
 // Expand VALID_CODEPOINTS
@@ -49,6 +47,15 @@ var presetDeep = {
 var storeClient
 var settings = Object.assign({}, presetDefault)
 
+function getSoupSpec() {
+    return {name: SOUPNAME, features: settings.useExternalStorage ? ["externalStorage"] : []}
+}
+
+function getIndexSpecs() {
+    return [{path:"key", type: settings.useExternalStorage ? "string" : "json1"}];
+}
+
+
 // Sets up soup 
 // If soup already exists:
 // - if dropIfExist is true, the existing soup is removed and a new soup is created
@@ -56,8 +63,7 @@ var settings = Object.assign({}, presetDefault)
 function setupSoup(removeIfExist) {
     var createSoup = () => {
         log("Setting up soup", "blue")
-        var soupSpec = {name: SOUPNAME, features: settings.useExternalStorage ? SOUP_FEATURES : []}
-        return storeClient.registerSoupWithSpec(STORE_CONFIG, soupSpec, INDEX_SPECS)
+        return storeClient.registerSoupWithSpec(STORE_CONFIG, getSoupSpec(), getIndexSpecs())
             .then(() => { log("Soup set up", "green") })
     }
     
