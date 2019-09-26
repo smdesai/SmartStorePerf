@@ -1,5 +1,5 @@
 // Constants
-const INDEX_SPECS = [{path:"key", type:"String"}]
+const INDEX_SPECS = [{path:"key", type:"string"}]
 const STORE_CONFIG = {isGlobalStore:true}
 const SOUPNAME = "soup"
 const SOUP_FEATURES = ["externalStorage"]
