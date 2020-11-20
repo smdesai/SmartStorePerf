@@ -3,44 +3,17 @@ const STORE_CONFIG = {isGlobalStore:true}
 const SOUPNAME = "soup"
 const SMART_QUERY = "select {soup:key}, {soup:_soup} from {soup}"
 
-// Expand VALID_CODEPOINTS
-const EXPANDED_VALID_CODEPOINTS = VALID_CODEPOINTS.map((elt)=> { if(elt instanceof Array) { return Array(elt[1]-elt[0]+1).fill().map((e,i)=>elt[0]+i) } else { return elt} }).flat()
 
 // Preset settings
-const presetAscii = {
-    minCodePoint: "20",
-    maxCodePoint: "FF"
-}
-
-const presetLsPs = {
-    minCodePoint: "2028",
-    maxCodePoint: "2029"
-}
-
 var presetDefault = {
-    useExternalStorage: true,
+    extJSONStream: true,
+    extJSONMemory: false,
+    smartStoreSFJSONUtils: false,
+    smartStoreNSJSONSerialize: false,
+    rawSqlite: false,
     // Shape of entries
-    depth: 0,                   // depth of json objects
-    numberOfChildren: 1,        // number of branches at each level
-    keyLength: 32,              // length of keys
-    valueLength: 1024,          // length of leaf values
-    validCodePointsOnly: true,  // only use valid unicode code points
-    minCodePoint: "1",          // smallest code point to use in random strings
-    maxCodePoint: "10FFFF"      // largest code point to use in random strings
-}
-
-var presetFlat = {
-    depth: 1,
-    numberOfChildren: 16,
-    keyLength: 16,
-    valueLength: 65536
-}
-
-var presetDeep = {
-    depth: 4,
-    numberOfChildren: 2,
-    keyLength: 16,
-    valueLength: 65536
+    keyLength: 32,
+    valueLength: 1024
 }
 
 // Global variables
@@ -48,11 +21,31 @@ var storeClient
 var settings = Object.assign({}, presetDefault)
 
 function getSoupSpec() {
-    return {name: SOUPNAME, features: settings.useExternalStorage ? ["externalStorage"] : []}
+    var features = [ settings.valueLength ]
+    if (settings.extJSONStream) {
+        features.push("extJSONStream")
+    }
+    if (settings.extJSONMemory) {
+        features.push("extJSONMemory")
+    }
+    if (settings.extJSONStream || settings.extJSONMemory) {
+        features.push("externalStorage")
+    }
+    if (settings.smartStoreSFJSONUtils) {
+        features.push("smartStoreSFJSONUtils")
+    }
+    if (settings.smartStoreNSJSONSerialize) {
+        features.push("smartStoreNSJSONSerialize")
+    }
+    if (settings.rawSQLite) {
+        features.push("rawSQLite")
+    }
+    return {name: SOUPNAME, features: features}
 }
 
 function getIndexSpecs() {
-    return [{path:"key", type: settings.useExternalStorage ? "string" : "json1"}];
+    var val = (settings.extJSONStream || settings.extJSONMemory) ? "string" : "json1"
+    return [{path:"key", type: val}];
 }
 
 
@@ -98,30 +91,26 @@ function showHideSettings(show) {
     showHide("divSettings", show)
     showHide("btnSaveSettings", show)
     showHide("btnCancelSettings", show)
-    showHide("btnPresetAscii", show)
-    showHide("btnPresetLsPs", show)
     showHide("btnPresetDefault", show)
-    showHide("btnPresetDeep", show)
-    showHide("btnPresetFlat", show)
     showHide("ulConsole", !show)
     showHide("btnOpenSettings", !show)
     showHide("btnClear", !show)
     showHide("btnInsert10", !show)
-    showHide("btnInsert100", !show)
-    showHide("btnQueryAll1By1", !show)
-    showHide("btnQueryAll10By10", !show)
+//    showHide("btnInsert100", !show)
+//    showHide("btnQueryAll1By1", !show)
+//    showHide("btnQueryAll10By10", !show)
 }
-
+    
 // Function to populate inputs in settings screen
 function populateSettingsInputs(s) {
-    if (s.hasOwnProperty("useExternalStorage")) document.getElementById("inputUseExternalStorage").checked = s.useExternalStorage
-    if (s.hasOwnProperty("depth")) document.getElementById("inputDepth").value = s.depth
-    if (s.hasOwnProperty("numberOfChildren")) document.getElementById("inputNumberOfChildren").value = s.numberOfChildren
+    if (s.hasOwnProperty("extJSONStream")) document.getElementById("inputExtJSONStream").checked = s.extJSONStream
+    if (s.hasOwnProperty("extJSONMemory")) document.getElementById("inputExtJSONMemory").checked = s.extJSONMemory
+    if (s.hasOwnProperty("smartStoreSFJSONUtils")) document.getElementById("inputSmartStoreSFJSONUtils").checked = s.smartStoreSFJSONUtils
+    if (s.hasOwnProperty("smartStoreNSJSONSerialize")) document.getElementById("inputSmartStoreNSJSONSerialize").checked = s.smartStoreNSJSONSerialize
+    if (s.hasOwnProperty("inputRawSQLite")) document.getElementById("inputRawSQLite").checked = s.rawSQLite
+
     if (s.hasOwnProperty("keyLength")) document.getElementById("inputKeyLength").value = s.keyLength
     if (s.hasOwnProperty("valueLength")) document.getElementById("inputValueLength").value = s.valueLength
-    if (s.hasOwnProperty("validCodePointsOnly")) document.getElementById("inputValidCodePointsOnly").checked = s.validCodePointsOnly
-    if (s.hasOwnProperty("minCodePoint")) document.getElementById("inputMinCodePoint").value = s.minCodePoint
-    if (s.hasOwnProperty("maxCodePoint")) document.getElementById("inputMaxCodePoint").value = s.maxCodePoint
 }
 
 // Function invoked when a btnOpenSettings is pressed
@@ -138,22 +127,18 @@ function onPreset(s) {
 
 // Function invoked when a btnSaveSettings is pressed
 function onSaveSettings() {
-    var originalUseExternalStorage = settings.useExternalStorage
-    settings.useExternalStorage = document.getElementById("inputUseExternalStorage").checked
-    settings.depth = parseInt(document.getElementById("inputDepth").value)
-    settings.numberOfChildren = parseInt(document.getElementById("inputNumberOfChildren").value)
+    settings.extJSONStream = document.getElementById("inputExtJSONStream").checked
+    settings.extJSONMemory = document.getElementById("inputExtJSONMemory").checked
+    settings.smartStoreSFJSONUtils = document.getElementById("inputSmartStoreSFJSONUtils").checked
+    settings.smartStoreNSJSONSerialize = document.getElementById("inputSmartStoreNSJSONSerialize").checked
+    settings.rawSQLite = document.getElementById("inputRawSQLite").checked
+
     settings.keyLength = parseInt(document.getElementById("inputKeyLength").value)
     settings.valueLength = parseInt(document.getElementById("inputValueLength").value)
-    settings.validCodePointsOnly = document.getElementById("inputValidCodePointsOnly").checked
-    settings.minCodePoint = document.getElementById("inputMinCodePoint").value
-    settings.maxCodePoint = document.getElementById("inputMaxCodePoint").value
     // Hide
     showHideSettings(false)
 
-    if (originalUseExternalStorage != settings.useExternalStorage) {
-        // Recreate soup if storage type changed
-        setupSoup(true)
-    }
+    setupSoup(true)
 }
 
 // Function invoked when a btnCancelSettings is pressed
@@ -187,7 +172,6 @@ function getEntrySizeAsString() {
     return roundedSize(JSON.stringify(generateEntry()).length)
 }
 
-
 // Function invoked when a btnInsert* button is pressed
 function onInsert(n, i, start, actuallyAdded) {
     var entrySize = getEntrySizeAsString()
@@ -208,6 +192,39 @@ function onInsert(n, i, start, actuallyAdded) {
         var elapsedTime = time() - start
         log(`+ ${actuallyAdded} in ${elapsedTime} ms`, "green")
     }
+}
+
+function sleep(ms) {
+    return new Promise(resolve => setTimeout(resolve, ms));
+}
+                          
+async function onRunTests() {
+    var delay = 5000
+    for (var size = 100; size <= 2000; size += 100) {
+        settings.valueLength = size
+        await setupSoup(true)
+        await sleep(1000)
+        await onInsert(10)
+        await sleep(delay)
+        delay = delay + 100
+    }
+    log(`Tests complete`, "green")
+}
+                          
+function onReset() {
+    log("Reset perf DB", "blue")
+    storeClient.resetPerfDb(STORE_CONFIG, SOUPNAME)
+        .then(() => {
+            log("Perf DB reset complete", "green")
+        })
+}
+                          
+function onDump() {
+    log("Dumping perf DB", "blue")
+    storeClient.dumpPerfDb(STORE_CONFIG, SOUPNAME)
+        .then(() => {
+            log(`Perf DB dump complete`, "green")
+        })
 }
 
 // Function invoked when a btnQueryAll* button is pressed
@@ -250,8 +267,7 @@ function generateEntry() {
     try {
         return {
             key: generateString(settings.keyLength),
-            value: generateObject(settings.depth, settings.numberOfChildren, settings.keyLength, settings.valueLength)
-            
+            value: generateObject(settings.valueLength)
         }
     }
     catch (err) {
@@ -261,56 +277,35 @@ function generateEntry() {
 }
 
 // Helper function to generate object
-// @param depth
-// @param numberOfChildren
-// @param keyLength
 // @param valueLength
-function generateObject(depth, numberOfChildren, keyLength, valueLength) {
-    if (depth > 0) {
-        var obj = {}
-        for (var i=0; i<numberOfChildren; i++) {
-            obj[generateString(keyLength)] = generateObject(depth-1, numberOfChildren, keyLength, valueLength) 
-        }
-        return obj
-    } else {
-        return generateString(valueLength)
-    }
+function generateObject(valueLength) {
+    var mydata = data
+    return generateJson(valueLength)
 }
 
+function makeId(length) {
+    var result           = ''
+    var characters       = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789'
+    var charactersLength = characters.length
+        for (var i = 0; i < length; ++i) {
+        result += characters.charAt(Math.floor(Math.random() * charactersLength))
+    }
+    return result
+}
+                          
+function generateJson(l) {
+    var count = Math.round(l*1024 / 137)
+    var data = []
+    for (var i = 0; i < count; i++) {
+        data.push({"first":makeId(34),"last":makeId(34),"country":makeId(34)})
+    }
+    return data
+}
+                          
 // Helper function to generate string of length l
 // @param l desired length
 function generateString(l) {
-    var minCodePoint = parseInt(settings.minCodePoint, 16)
-    var maxCodePoint = parseInt(settings.maxCodePoint, 16)
-    if (settings.validCodePointsOnly) {
-        var minCodePointIndex = indexOfClosestCodePoint(minCodePoint)
-        var maxCodePointIndex = indexOfClosestCodePoint(maxCodePoint)
-
-        if (minCodePointIndex == -1 || EXPANDED_VALID_CODEPOINTS[minCodePointIndex] > maxCodePoint) {
-            throw "No valid characters in the 0x" + settings.minCodePoint + " .. 0x" + settings.maxCodePoint + " range"
-        }
-        
-        return [...Array(l)].map(() => {
-            return String.fromCodePoint(EXPANDED_VALID_CODEPOINTS[Math.floor(Math.random() * (maxCodePointIndex+1-minCodePointIndex) + minCodePointIndex)])
-        }).join('')
-    }
-    else {
-        return [...Array(l)].map(() => {
-            return String.fromCodePoint(Math.floor(Math.random() * (maxCodePoint+1-minCodePoint) + minCodePoint))
-        }).join('')
-    }
-}
-
-// Return index of codePoint in EXPANDED_VALID_CODEPOINTS if codePoint is valid
-// or closest valid codePoint that follows if there is one
-// or -1 if no valid codePoint follows
-function indexOfClosestCodePoint(codePoint) {
-    for (var i=0; i<EXPANDED_VALID_CODEPOINTS.length; i++) {
-        if (EXPANDED_VALID_CODEPOINTS[i] >= codePoint) {
-            return i;
-        }
-    }
-    return -1;
+    return makeId(l)
 }
 
 // Helper function to return current time in ms
@@ -333,14 +328,16 @@ function main() {
         document.getElementById('btnCancelSettings').addEventListener("click", onCancelSettings)
         document.getElementById('btnClear').addEventListener("click", onClear)
         document.getElementById('btnInsert10').addEventListener("click", () => { onInsert(10) })
-        document.getElementById('btnInsert100').addEventListener("click", () => { onInsert(100) })
-        document.getElementById('btnQueryAll1By1').addEventListener("click", () => { onQueryAll(1) })
-        document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
-        document.getElementById('btnPresetAscii').addEventListener("click", () => { onPreset(presetAscii) })
-        document.getElementById('btnPresetLsPs').addEventListener("click", () => { onPreset(presetLsPs) })
-        document.getElementById('btnPresetDefault').addEventListener("click", () => { onPreset(presetDefault) })
-        document.getElementById('btnPresetFlat').addEventListener("click", () => { onPreset(presetFlat) })
-        document.getElementById('btnPresetDeep').addEventListener("click", () => { onPreset(presetDeep) })
+        
+        document.getElementById('btnRunTests').addEventListener("click", () => { onRunTests() })
+        
+        document.getElementById('btnReset').addEventListener("click", () => { onReset() })
+        document.getElementById('btnDump').addEventListener("click", () => { onDump() })
+
+//        document.getElementById('btnInsert100').addEventListener("click", () => { onInsert(100) })
+//        document.getElementById('btnQueryAll1By1').addEventListener("click", () => { onQueryAll(1) })
+//        document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
+//        document.getElementById('btnPresetDefault').addEventListener("click", () => { onPreset(presetDefault) })
                               
         // Get store client
         storeClient = cordova.require("com.salesforce.plugin.smartstore.client")

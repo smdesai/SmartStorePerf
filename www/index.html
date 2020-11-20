@@ -14,24 +14,32 @@
             display: none
         }
     
-        #divSettings input{
-            width: 7em
+        #divSettings input {
+            width: 4.5em
         }
     
         #divSettings label {
             display: block;
-            float: left;
-            width: 9em;
+            float: right;
+            width: 13em;
+        }
+    
+        li > label {
+            font-size: 14px;
+        }
+    
+        .header {
+            padding-left: 1em
         }
     
         html *
         {
-           font-family: Courier !important;
+           font-family: Helvetica !important;
         }
     </style>
    <script src="cordova.js"></script>
    <script src="force.js"></script>
-   <script src="validCodePoints.js"></script>
+   <script type="text/javascript" src="data.json"></script>
    <script src="app.js"></script>
 </head>
 <body>
@@ -49,59 +57,60 @@
         
         <!-- Settings -->
         <ul id="divSettings" class="card table-view hidden">
+            <li class="header">External Storage</li>
             <li class="table-view-cell">
-                <label>Use External Storage</label>
-                <input type="checkbox" id="inputUseExternalStorage">
+                <label>Serialize JSON over stream</label>
+                <input type="checkbox" id="inputExtJSONStream">
             </li>
             <li class="table-view-cell">
-                <label>Depth</label>
-                <input type="number" id="inputDepth">
+                <label>Serialize JSON in memory</label>
+                <input type="checkbox" id="inputExtJSONMemory">
+            </li>
+            <li class="header">SmartStore Storage</li>
+            <li class="table-view-cell">
+                <label>Serialize using SFJsonUtils</label>
+                <input type="checkbox" id="inputSmartStoreSFJSONUtils">
             </li>
             <li class="table-view-cell">
-                <label>Number of children</label>
-                <input type="number" id="inputNumberOfChildren">
+                <label>Serialize using NSJSONSerialization</label>
+                <input type="checkbox" id="inputSmartStoreNSJSONSerialize">
             </li>
+            <li class="header">SQLite</li>
+            <li class="table-view-cell">
+                <label>Serialize using NSJSONSerialization</label>
+                <input type="checkbox" id="inputRawSQLite">
+            </li>
+            <li class="header">Payload Parameters</li>
             <li class="table-view-cell">
                 <label>Key length</label>
                 <input type="number" id="inputKeyLength">
             </li>
             <li class="table-view-cell">
-                <label>Value length</label>
+                <label>Payload size (x1K)</label>
                 <input type="number" id="inputValueLength">
-            </li>
-            <li class="table-view-cell">
-                <label>Valid ch only</label>
-                <input type="checkbox" id="inputValidCodePointsOnly">
-            </li>            
-            <li class="table-view-cell">
-                <label>Min code point</label>
-                <input type="string" id="inputMinCodePoint">
-            </li>
-            <li class="table-view-cell">
-                <label>Max code pont</label>
-                <input type="string" id="inputMaxCodePoint">
             </li>
         </ul>
 
         <!-- Console -->
         <ul id="ulConsole" class="table-view">
         </ul>
-
     </div>
         
     <!-- Bottom bar -->
     <nav class="bar bar-footer">
       <!-- Buttons for main screen -->
-      <button class="btn pull-left" id="btnInsert10">+ 10</button>
+      <button class="btn pull-left" id="btnInsert10">+10</button>
+      <button class="btn pull-left" id="btnRunTests">RUN</button>
+
+      <button class="btn pull-right" id="btnReset">RST</button>
+      <button class="btn pull-right" id="btnDump">PRF</button>
+      <!--
       <button class="btn pull-left" id="btnInsert100">+ 100</button>
       <button class="btn pull-right" id="btnQueryAll1By1">Q 1 by 1</button>
       <button class="btn pull-right" id="btnQueryAll10By10">Q 10 by 10</button>
+      -->
       <!-- Buttons for settings screen -->
-      <button class="btn hidden" id="btnPresetAscii">ASCII</button>
-      <button class="btn hidden" id="btnPresetLsPs">LS/PS</button>
       <button class="btn hidden" id="btnPresetDefault">Default</button>
-      <button class="btn hidden" id="btnPresetDeep">Deep</button>
-      <button class="btn hidden" id="btnPresetFlat">Flat</button>
     </nav>
 </body>
 </html>
