@@ -13,7 +13,7 @@ var presetDefault = {
     rawSqlite: false,
     // Shape of entries
     keyLength: 32,
-    valueLength: 1024
+    valueLength: 1000
 }
 
 // Global variables
