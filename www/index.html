@@ -9,29 +9,29 @@
         body, .bar-nav {
             top: env(safe-area-inset-top)
         }
-    
+
         .hidden {
             display: none
         }
-    
+
         #divSettings input {
             width: 4.5em
         }
-    
+
         #divSettings label {
             display: block;
             float: right;
             width: 13em;
         }
-    
+
         li > label {
             font-size: 14px;
         }
-    
+
         .header {
             padding-left: 1em
         }
-    
+
         html *
         {
            font-family: Helvetica !important;
@@ -39,7 +39,6 @@
     </style>
    <script src="cordova.js"></script>
    <script src="force.js"></script>
-   <script type="text/javascript" src="data.json"></script>
    <script src="app.js"></script>
 </head>
 <body>
@@ -52,9 +51,9 @@
         <button class="btn pull-left btn-negative hidden" id="btnCancelSettings">Cancel</button>
         <button class="btn btn-negative pull-left" id="btnClear">Clear Soup</button>
     </header>
-    
+
     <div class="content">
-        
+
         <!-- Settings -->
         <ul id="divSettings" class="card table-view hidden">
             <li class="header">External Storage</li>
@@ -95,7 +94,7 @@
         <ul id="ulConsole" class="table-view">
         </ul>
     </div>
-        
+
     <!-- Bottom bar -->
     <nav class="bar bar-footer">
       <!-- Buttons for main screen -->

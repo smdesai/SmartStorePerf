@@ -49,7 +49,7 @@ function getIndexSpecs() {
 }
 
 
-// Sets up soup 
+// Sets up soup
 // If soup already exists:
 // - if dropIfExist is true, the existing soup is removed and a new soup is created
 // - if dropIfExist is false, the existing soup is left alone
@@ -59,7 +59,7 @@ function setupSoup(removeIfExist) {
         return storeClient.registerSoupWithSpec(STORE_CONFIG, getSoupSpec(), getIndexSpecs())
             .then(() => { log("Soup set up", "green") })
     }
-    
+
     storeClient.soupExists(STORE_CONFIG, SOUPNAME)
         .then((exists) => {
             if (exists && removeIfExist) {
@@ -100,7 +100,7 @@ function showHideSettings(show) {
 //    showHide("btnQueryAll1By1", !show)
 //    showHide("btnQueryAll10By10", !show)
 }
-    
+
 // Function to populate inputs in settings screen
 function populateSettingsInputs(s) {
     if (s.hasOwnProperty("extJSONStream")) document.getElementById("inputExtJSONStream").checked = s.extJSONStream
@@ -182,7 +182,7 @@ function onInsert(n, i, start, actuallyAdded) {
     if (i == 0) {
         log(`+ ${n} x ${entrySize}`, "blue")
     }
-    
+
     if (i < n) {
         storeClient.upsertSoupEntries(STORE_CONFIG, SOUPNAME, [generateEntry()])
             .then(() => { return onInsert(n, i+1, start, actuallyAdded+1) } )
@@ -197,7 +197,7 @@ function onInsert(n, i, start, actuallyAdded) {
 function sleep(ms) {
     return new Promise(resolve => setTimeout(resolve, ms));
 }
-                          
+
 async function onRunTests() {
     var delay = 5000
     for (var size = 100; size <= 2000; size += 100) {
@@ -210,7 +210,7 @@ async function onRunTests() {
     }
     log(`Tests complete`, "green")
 }
-                          
+
 function onReset() {
     log("Reset perf DB", "blue")
     storeClient.resetPerfDb(STORE_CONFIG, SOUPNAME)
@@ -218,7 +218,7 @@ function onReset() {
             log("Perf DB reset complete", "green")
         })
 }
-                          
+
 function onDump() {
     log("Dumping perf DB", "blue")
     storeClient.dumpPerfDb(STORE_CONFIG, SOUPNAME)
@@ -279,7 +279,6 @@ function generateEntry() {
 // Helper function to generate object
 // @param valueLength
 function generateObject(valueLength) {
-    var mydata = data
     return generateJson(valueLength)
 }
 
@@ -292,7 +291,7 @@ function makeId(length) {
     }
     return result
 }
-                          
+
 function generateJson(l) {
     var count = Math.round(l*1024 / 137)
     var data = []
@@ -301,7 +300,7 @@ function generateJson(l) {
     }
     return data
 }
-                          
+
 // Helper function to generate string of length l
 // @param l desired length
 function generateString(l) {
@@ -328,9 +327,9 @@ function main() {
         document.getElementById('btnCancelSettings').addEventListener("click", onCancelSettings)
         document.getElementById('btnClear').addEventListener("click", onClear)
         document.getElementById('btnInsert10').addEventListener("click", () => { onInsert(10) })
-        
+
         document.getElementById('btnRunTests').addEventListener("click", () => { onRunTests() })
-        
+
         document.getElementById('btnReset').addEventListener("click", () => { onReset() })
         document.getElementById('btnDump').addEventListener("click", () => { onDump() })
 
@@ -338,7 +337,7 @@ function main() {
 //        document.getElementById('btnQueryAll1By1').addEventListener("click", () => { onQueryAll(1) })
 //        document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
 //        document.getElementById('btnPresetDefault').addEventListener("click", () => { onPreset(presetDefault) })
-                              
+
         // Get store client
         storeClient = cordova.require("com.salesforce.plugin.smartstore.client")
         // Sets up soup - don't drop soup if it already exists
