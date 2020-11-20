@@ -1,4 +1,4 @@
-# Simple application that tries to corrupt SmartStore
+# An application that writes data to SmartStore collecting performance metrics
 
 ## Quick links
 1. [Overview](#1-overview)
@@ -8,42 +8,47 @@
 
 ## 1. Overview
 
-![Screenshot](Screenshot.png) 
+![Screenshot](Screenshot.png)
 
 ### Settings screen
 Through the settings screen one can control the shape of the records and whether to use external storage or not:
-- use external storage: whether to use external storage or not.
-- depth: depth of json objects.
-- number of children: number of branches at each level of the json object.
-- key length: length of keys in json object.
-- value length: length of leaf values in json object.
-- valid ch only: whether to only use valid unicode code points (full list downloaded from http://www.unicode.org/ by `install.sh`)
-- min/max code point: smallest/largest code point (in hex) to use in random strings generated for keys and leaf value.
+- External Storage
+    - Serialize JSON over stream: Serialize JSON over an encrypted stream (this is the default)
+    - Serialize JSON in memory: Serialize JSON to memory before writing to disk
+- SmartStore DB Storage
+    - Serialize using SFJsonUtils: Serialize JSON using SFJsonUtils before DB write (this is the default)
+    - Serialize using NSJSONSerialization: Serialize JSON using NSJSONSerialization before DB write
+- SQLite
+    - Serialize using NSJSONSerialization: Write to SQLite without use SmartStore
+- Key length: Length of keys in JSON object
+- Payload size (x1K): Size of JSON payload to write to DB
+
+**Note:**
+The settings screen will be simplified and additional information recorded based on the options.
 
 Actions:
-- save: to update settings and go to console screen. If you change the storage type, the soup gets recreated.
-- cancel: to go to console screen without updating settings.
+- Save: To update settings and go to console screen. If you change the storage type, the soup gets recreated
+- Cancel: to go to console screen without updating settings
 
-Bottom bar actions for selecting pre-set settings:
-- ascii: use ascii range
-- ls/ps: use line separator / paragraph separator range
-- default: go back to default settings
-- deep: deep objects (depth 4, number of children 2, value length: 65536 -> so 16 leaves with 64k value each)
-- flat : flat objects (depth 1, number of children 16, value length: 65536 -> so 16 leaves with 64k value each)
+Bottom bar actions for selecting preset settings:
+-
+- Default: Go back to default settings
 
 ### Console screen:
-Through the console screen, insert and query records from smartstore.
+Through the console screen, insert and run SmartStore tests.
 
 Actions:
-- settings: bring up Settings screen.
-- clear soup: to empty the soup.
-- +10, +100: to insert 10 or 100 large records. The size of records inserted (and the time it took are reported).
-- Q 1 by 1, Q 10 by 10: to query all records from the soup with a page size of 1 and 10 respectively. The number of records founds / expected (and the time it took) are reported..
+- Settings: Bring up Settings screen
+- Clear Soup: Empty the soup
+- +10: Insert 10 records based on Payload size in Settings
+- RUN: Run a set of tests writing 10 records starting from 100K and ending at 2000K
+- PRF: Generates performance data (as CSV) so it can be accessed via the Files app
+- RST: Remove performance data
 
 Screen shows ouput for most recent operation first:
-- Blue is for the beginning of an operation.
-- Green is for the end of an operation.
-- Red is for errors.
+- Blue is for the beginning of an operation
+- Green is for the end of an operation
+- Red is for errors
 
 ## 2. Setup
 
@@ -53,6 +58,9 @@ After cloning this repo, you should do:
 ./install.sh
 ```
 NB: you need forcehybrid installed.
+
+**Note:**
+See Post Install Setup below
 
 ### Running the application
 To bring up the application in XCode do:
@@ -73,74 +81,27 @@ Copy any files you changed from to `./app/platforms/ios/www/` to `./www`.
 
 ### Pointing to a different version of the Mobile SDK
 Simply edit `./app/platforms/ios/Podfile` and change where to get the libraries from.
-For instance, if you used forcehybrid 7.2, it would look something like:
+For instance, if you used forcehybrid 8.3, it would look something like:
 ```ruby
-platform :ios, '11.0'
+platform :ios, '12.2'
 use_frameworks!
-target 'CorruptionTester' do
-	pod 'SalesforceHybridSDK', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS-Hybrid', :tag => 'v7.2.0'
-	pod 'Cordova', :git => 'https://github.com/forcedotcom/cordova-ios', :branch => 'cordova_5.0.0_sdk'
-	pod 'SmartSync', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v7.2.0'
-	pod 'SmartStore', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v7.2.0'
+source 'https://cdn.cocoapods.org/'
+target 'SmartStorePerf' do
+	pod 'SalesforceHybridSDK', :path => '/Users/sdesai/mobile//SalesforceMobileSDK-iOS-Hybrid'
+	pod 'Cordova', :git => 'https://github.com/forcedotcom/cordova-ios', :branch => 'cordova_5.1.1_sdk'
+	pod 'MobileSync', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v8.3.0'
+	pod 'SmartStore', :path => '/Users/sdesai/mobile/SalesforceMobileSDK-iOS'
 	pod 'FMDB/SQLCipher', :git => 'https://github.com/ccgus/fmdb', :tag => '2.7.5'
-	pod 'SQLCipher/fts', :git => 'https://github.com/sqlcipher/sqlcipher', :tag => 'v4.2.0'
-	pod 'SalesforceSDKCore', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v7.2.0'
-	pod 'SalesforceAnalytics', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v7.2.0'
-	pod 'SalesforceSDKCommon', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v7.2.0'
+	pod 'SQLCipher/fts', :git => 'https://github.com/sqlcipher/sqlcipher', :tag => 'v4.4.0'
+	pod 'SalesforceSDKCore', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v8.3.0'
+	pod 'SalesforceAnalytics', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v8.3.0'
+	pod 'SalesforceSDKCommon', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v8.3.0'
 end
 ```
+:warning:
+This is being worked on to ensure it works straight from Github
 
-### Looking at the externally stored files (when using simulator)
-First find the directory for that soup:
+## 3. Post Install Setup
 ```shell
-cd ~/Library/Developer/CoreSimulator/Devices/
-find . -name TABLE_1
+cp post-install/*.js app/platforms/ios/www/plugins/com.salesforce/www
 ```
-Disable encrypting of externally stored files by editing `SFSmartStore.m`, replace `SFSmartStoreEncryptionKeyBlock keyBlock = [SFSmartStore encryptionKeyBlock];` with `SFSmartStoreEncryptionKeyBlock keyBlock = nil;` in:
-- `loadExternalSoupEntryAsString:soupTableName` 
-- `saveSoupEntryExternally:soupEntryId:soupTableName`
-
-To pretty a json file do:
-```shell
-cat soupelt_xxx | python -mjson.tool
-```
-### To see what's coming from JavaScript
-Add the following to `CDVWKWebViewEngine.m`'s `userContentController:didReceiveScriptMessage`:
-```objective-c
-NSLog(@"wkscriptmessage---->%@", message.body);
-```
-
-### To see what's going to JavaScript
-Add the following to `CDVCommandDelegateImpl.m`'s `evalJsHelper2`
-```objective-c
-NSLog(@"js---->%@", js);
-```
-
-## 4. Issues discovered
-
-### Bug in saveSoupEntryExternally
-When we upsert soup entries that are stored in external files, we use `NSJSONSerialization:writeJSONObject` to write the JSON to a file.
-
-That method can fail with certain unicode characters (lone unpaired surrogate e.g. U+D800). 
-Strings containing these invalid characters are handled in different ways by different parsers. See http://seriot.ch/parsing_json.php for more information.
-
-`saveSoupEntryExternally` should exit with an error, causing the `upsert` to revert.
-Because we were looking at the return value (number of bytes written) of `NSJSONSerialization:writeJSONObject` to decide if an error occurred (because the documentation says 0 should be returned if an error occurs) and an non-zero value is returned (with an error) when such characters are present, we could end up with a cut-off file, which causes issues at query time.
-
-PR: https://github.com/forcedotcom/SalesforceMobileSDK-iOS/pull/2982
-
-**Question: can such invalid characters happen in the wild?**
-
-### LS/PS handling in JSON vs JavaScript
-Line separator "LS" (U+2028 - character code 8232) and paragraph separator "PS" (U+2029 - character code 8233) are considered line terminators in JavaScript (so need to be escaped in a string) but not in JSON !
-
-For more information see http://timelessrepo.com/json-isnt-a-javascript-subset. 
-Interestingly, JSON and JavaScript might finally line up in ES2019: https://v8.dev/features/subsume-json.
-
-As a result, a stringified JSON containing non-escaped LS or PS, given to JavaScript should produce a syntax error.
-
-Possible fix:
-Fix Cordova evalJs method to escape those characters before sending them in the webview. Here is another bridge that does just that: https://github.com/Lision/WKWebViewJavascriptBridge/blob/master/WKWebViewJavascriptBridge/WKWebViewJavascriptBridgeBase.swift#L112)
-PR: https://github.com/forcedotcom/SalesforceMobileSDK-iOS-Hybrid/pull/94
-
-**Problem: happening on 11.4 but not on 12 or 13**
