@@ -1,0 +1,20 @@
+--- old	2020-11-20 16:11:25.000000000 -0800
++++ new	2020-11-20 16:12:35.000000000 -0800
+@@ -30,6 +30,10 @@
+ 	<string/>
+ 	<key>UIRequiresFullScreen</key>
+ 	<true/>
++    <key>UIFileSharingEnabled</key>
++    <true/>
++    <key>LSSupportsOpeningDocumentsInPlace</key>
++    <true/>
+ 	<key>UISupportedInterfaceOrientations</key>
+ 	<array>
+ 		<string>UIInterfaceOrientationPortrait</string>
+@@ -79,4 +83,4 @@
+ 		<true/>
+ 	</dict>
+ </dict>
+-</plist>
+\ No newline at end of file
++</plist>

@@ -59,8 +59,13 @@ After cloning this repo, you should do:
 ```
 NB: you need forcehybrid installed.
 
-**Note:**
-See Post Install Setup below
+Edit app/platforms/ios/Podfile and replace the contents with the Podfile contents
+listed below. Then run the post install script.
+
+```shell
+./post-install.sh
+```
+
 
 ### Running the application
 To bring up the application in XCode do:
@@ -83,25 +88,18 @@ Copy any files you changed from to `./app/platforms/ios/www/` to `./www`.
 Simply edit `./app/platforms/ios/Podfile` and change where to get the libraries from.
 For instance, if you used forcehybrid 8.3, it would look something like:
 ```ruby
-platform :ios, '12.2'
+platform :ios, '13'
 use_frameworks!
 source 'https://cdn.cocoapods.org/'
 target 'SmartStorePerf' do
-	pod 'SalesforceHybridSDK', :path => '/Users/sdesai/mobile//SalesforceMobileSDK-iOS-Hybrid'
-	pod 'Cordova', :git => 'https://github.com/forcedotcom/cordova-ios', :branch => 'cordova_5.1.1_sdk'
-	pod 'MobileSync', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v8.3.0'
-	pod 'SmartStore', :path => '/Users/sdesai/mobile/SalesforceMobileSDK-iOS'
+	pod 'SalesforceHybridSDK', :git => 'https://github.com/smdesai/SalesforceMobileSDK-iOS-Hybrid', :branch => 'dev'
+	pod 'Cordova', :git => 'https://github.com/forcedotcom/cordova-ios', :branch => 'cordova_6.1.1_sdk'
+	pod 'MobileSync', :git => 'https://github.com/smdesai/SalesforceMobileSDK-iOS', :branch => 'dev'
+	pod 'SmartStore', :git => 'https://github.com/smdesai/SalesforceMobileSDK-iOS', :branch => 'dev'
 	pod 'FMDB/SQLCipher', :git => 'https://github.com/ccgus/fmdb', :tag => '2.7.5'
 	pod 'SQLCipher/fts', :git => 'https://github.com/sqlcipher/sqlcipher', :tag => 'v4.4.0'
-	pod 'SalesforceSDKCore', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v8.3.0'
-	pod 'SalesforceAnalytics', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v8.3.0'
-	pod 'SalesforceSDKCommon', :git => 'https://github.com/forcedotcom/SalesforceMobileSDK-iOS', :tag => 'v8.3.0'
+	pod 'SalesforceSDKCore', :git => 'https://github.com/smdesai/SalesforceMobileSDK-iOS', :branch => 'dev'
+	pod 'SalesforceAnalytics', :git => 'https://github.com/smdesai/SalesforceMobileSDK-iOS', :branch => 'dev'
+	pod 'SalesforceSDKCommon', :git => 'https://github.com/smdesai/SalesforceMobileSDK-iOS', :branch => 'dev'
 end
-```
-:warning:
-This is being worked on to ensure it works straight from Github
-
-## 3. Post Install Setup
-```shell
-cp post-install/*.js app/platforms/ios/www/plugins/com.salesforce/www
 ```
