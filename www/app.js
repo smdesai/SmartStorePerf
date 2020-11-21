@@ -176,8 +176,8 @@ function roundedSize(size) {
 }
 
 // Function returning approximate entry size as a string
-function getEntrySizeAsString() {
-    return roundedSize(JSON.stringify(generateEntry()).length)
+function getEntrySizeAsString(length) {
+    return roundedSize(JSON.stringify(generateEntry(length)).length)
 }
 
 // Function invoked when a btnInsert* button is pressed
@@ -192,7 +192,7 @@ function onInsert(n, i, start, actuallyAdded) {
     }
 
     if (i < n) {
-        storeClient.upsertSoupEntries(STORE_CONFIG, SOUPNAME, [generateEntry()])
+        storeClient.upsertSoupEntries(STORE_CONFIG, SOUPNAME, [generateEntry(settings.valueLength)])
             .then(() => { return onInsert(n, i+1, start, actuallyAdded+1) } )
             .catch(() => { return onInsert(n, i+1, start, actuallyAdded) } )
     }
@@ -202,10 +202,6 @@ function onInsert(n, i, start, actuallyAdded) {
     }
 }
 
-//function sleep(ms) {
-//    return new Promise(resolve => setTimeout(resolve, ms));
-//}
-
 // n - number of tests to run for ps .. pe by pi
 // ps - payload start
 // pe - payload end
@@ -213,19 +209,19 @@ function onInsert(n, i, start, actuallyAdded) {
 // i  - current index to n
 // pa - actual value from ps .. pe
 function onRunTest(n, ps, pe, pi, i, pa, start, actuallyAdded) {
-    var entrySize = getEntrySizeAsString()
+    var entrySize = getEntrySizeAsString(pa)
     i = i || 0
     start = start || time()
     actuallyAdded = actuallyAdded || 0
     pa = pa || ps
-    
+
     if (i === 0 && pa <= pe) {
-        log(`+ ${n} x ${entrySize} @ ${pa}`, "blue")
+        log(`+ ${n} x ${entrySize}`, "blue")
     }
-            
+
     if (pa <= pe) {
         if (i < n) {
-            storeClient.upsertSoupEntries(STORE_CONFIG, SOUPNAME, [generateEntry()])
+            storeClient.upsertSoupEntries(STORE_CONFIG, SOUPNAME, [generateEntry(pa)])
                 .then(() => { return onRunTest(n, ps, pe, pi, i+1, pa, start, actuallyAdded+1) } )
                 .catch(() => { return onRunTest(n, ps, pe, pi, i+1, pa, start, actuallyAdded) } )
         } else {
@@ -290,11 +286,11 @@ function log(msg, color) {
 }
 
 // Helper function to generate entry
-function generateEntry() {
+function generateEntry(length) {
     try {
         return {
             key: generateString(settings.keyLength),
-            value: generateObject(settings.valueLength)
+            value: generateObject(length)
         }
     }
     catch (err) {
