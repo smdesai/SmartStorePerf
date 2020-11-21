@@ -21,7 +21,9 @@ Through the settings screen one can control the shape of the records and whether
 - SQLite
     - Serialize using NSJSONSerialization: Write to SQLite without use SmartStore
 - Key length: Length of keys in JSON object
-- Payload size (x1K): Size of JSON payload to write to DB
+- Payload start (K): Initial size of JSON payload
+- Payload end (K): Final size of JSON payload
+- Payload increment (K): Payload increment size
 
 **Note:**
 The settings screen will be simplified and additional information recorded based on the options.
@@ -42,8 +44,8 @@ Actions:
 - Clear Soup: Empty the soup
 - +10: Insert 10 records based on Payload size in Settings
 - RUN: Run a set of tests writing 10 records starting from 100K and ending at 2000K
-- PRF: Generates performance data (as CSV) so it can be accessed via the Files app
-- RST: Remove performance data
+- EXPORT: Exports performance in CSV form which can be accessed via the Files App
+- ERASE: Erase performance data
 
 Screen shows ouput for most recent operation first:
 - Blue is for the beginning of an operation

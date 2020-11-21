@@ -13,6 +13,8 @@ var presetDefault = {
     rawSqlite: false,
     // Shape of entries
     keyLength: 32,
+    valueStart: 100,
+    valueIncrement: 100,
     valueLength: 1000
 }
 
@@ -110,7 +112,10 @@ function populateSettingsInputs(s) {
     if (s.hasOwnProperty("inputRawSQLite")) document.getElementById("inputRawSQLite").checked = s.rawSQLite
 
     if (s.hasOwnProperty("keyLength")) document.getElementById("inputKeyLength").value = s.keyLength
+    if (s.hasOwnProperty("valueStart")) document.getElementById("inputValueStart").value = s.valueStart
     if (s.hasOwnProperty("valueLength")) document.getElementById("inputValueLength").value = s.valueLength
+    if (s.hasOwnProperty("valueIncrement")) document.getElementById("inputValueIncrement").value = s.valueIncrement
+
 }
 
 // Function invoked when a btnOpenSettings is pressed
@@ -134,7 +139,10 @@ function onSaveSettings() {
     settings.rawSQLite = document.getElementById("inputRawSQLite").checked
 
     settings.keyLength = parseInt(document.getElementById("inputKeyLength").value)
+    settings.valueStart = parseInt(document.getElementById("inputValueStart").value)
     settings.valueLength = parseInt(document.getElementById("inputValueLength").value)
+    settings.valueIncrement = parseInt(document.getElementById("inputValueIncrement").value)
+
     // Hide
     showHideSettings(false)
 
@@ -194,36 +202,55 @@ function onInsert(n, i, start, actuallyAdded) {
     }
 }
 
-function sleep(ms) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-}
+//function sleep(ms) {
+//    return new Promise(resolve => setTimeout(resolve, ms));
+//}
 
-async function onRunTests() {
-    var delay = 5000
-    for (var size = 100; size <= 2000; size += 100) {
-        settings.valueLength = size
-        await setupSoup(true)
-        await sleep(1000)
-        await onInsert(10)
-        await sleep(delay)
-        delay = delay + 100
+// n - number of tests to run for ps .. pe by pi
+// ps - payload start
+// pe - payload end
+// pi - payload increment
+// i  - current index to n
+// pa - actual value from ps .. pe
+function onRunTest(n, ps, pe, pi, i, pa, start, actuallyAdded) {
+    var entrySize = getEntrySizeAsString()
+    i = i || 0
+    start = start || time()
+    actuallyAdded = actuallyAdded || 0
+    pa = pa || ps
+    
+    if (i === 0 && pa <= pe) {
+        log(`+ ${n} x ${entrySize} @ ${pa}`, "blue")
     }
-    log(`Tests complete`, "green")
+            
+    if (pa <= pe) {
+        if (i < n) {
+            storeClient.upsertSoupEntries(STORE_CONFIG, SOUPNAME, [generateEntry()])
+                .then(() => { return onRunTest(n, ps, pe, pi, i+1, pa, start, actuallyAdded+1) } )
+                .catch(() => { return onRunTest(n, ps, pe, pi, i+1, pa, start, actuallyAdded) } )
+        } else {
+            var elapsedTime = time() - start
+            log(`+ ${actuallyAdded} in ${elapsedTime} ms`, "green")
+            onRunTest(n, ps, pe, pi, 0, pa + pi)
+        }
+    } else {
+        log(`Test run complete`, "green")
+    }
 }
 
 function onReset() {
-    log("Reset perf DB", "blue")
+    log("Erase perf data", "blue")
     storeClient.resetPerfDb(STORE_CONFIG, SOUPNAME)
         .then(() => {
-            log("Perf DB reset complete", "green")
+            log("Perf data erased", "green")
         })
 }
 
 function onDump() {
-    log("Dumping perf DB", "blue")
+    log("Export perf data", "blue")
     storeClient.dumpPerfDb(STORE_CONFIG, SOUPNAME)
         .then(() => {
-            log(`Perf DB dump complete`, "green")
+            log(`Perf data exported`, "green")
         })
 }
 
@@ -328,7 +355,7 @@ function main() {
         document.getElementById('btnClear').addEventListener("click", onClear)
         document.getElementById('btnInsert10').addEventListener("click", () => { onInsert(10) })
 
-        document.getElementById('btnRunTests').addEventListener("click", () => { onRunTests() })
+        document.getElementById('btnRunTests').addEventListener("click", () => { onRunTest(10, settings.valueStart, settings.valueLength, settings.valueIncrement) })
 
         document.getElementById('btnReset').addEventListener("click", () => { onReset() })
         document.getElementById('btnDump').addEventListener("click", () => { onDump() })
