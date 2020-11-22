@@ -39,8 +39,8 @@ function getSoupSpec() {
     if (settings.smartStoreNSJSONSerialize) {
         features.push("smartStoreNSJSONSerialize")
     }
-    if (settings.rawSQLite) {
-        features.push("rawSQLite")
+    if (settings.rawSqlite) {
+        features.push("rawSqlite")
     }
     return {name: SOUPNAME, features: features}
 }
@@ -98,9 +98,6 @@ function showHideSettings(show) {
     showHide("btnOpenSettings", !show)
     showHide("btnClear", !show)
     showHide("btnInsert10", !show)
-//    showHide("btnInsert100", !show)
-//    showHide("btnQueryAll1By1", !show)
-//    showHide("btnQueryAll10By10", !show)
 }
 
 // Function to populate inputs in settings screen
@@ -109,13 +106,12 @@ function populateSettingsInputs(s) {
     if (s.hasOwnProperty("extJSONMemory")) document.getElementById("inputExtJSONMemory").checked = s.extJSONMemory
     if (s.hasOwnProperty("smartStoreSFJSONUtils")) document.getElementById("inputSmartStoreSFJSONUtils").checked = s.smartStoreSFJSONUtils
     if (s.hasOwnProperty("smartStoreNSJSONSerialize")) document.getElementById("inputSmartStoreNSJSONSerialize").checked = s.smartStoreNSJSONSerialize
-    if (s.hasOwnProperty("inputRawSQLite")) document.getElementById("inputRawSQLite").checked = s.rawSQLite
+    if (s.hasOwnProperty("rawSqlite")) document.getElementById("inputRawSqlite").checked = s.rawSqlite
 
     if (s.hasOwnProperty("keyLength")) document.getElementById("inputKeyLength").value = s.keyLength
     if (s.hasOwnProperty("valueStart")) document.getElementById("inputValueStart").value = s.valueStart
     if (s.hasOwnProperty("valueLength")) document.getElementById("inputValueLength").value = s.valueLength
     if (s.hasOwnProperty("valueIncrement")) document.getElementById("inputValueIncrement").value = s.valueIncrement
-
 }
 
 // Function invoked when a btnOpenSettings is pressed
@@ -130,13 +126,58 @@ function onPreset(s) {
     populateSettingsInputs(s)
 }
 
+function onSelectedJSONStream() {
+    settings.extJSONStream = true
+    settings.extJSONMemory = false
+    settings.smartStoreSFJSONUtils = false
+    settings.smartStoreNSJSONSerialize = false
+    settings.rawSqlite = false
+    populateSettingsInputs(settings)
+}
+
+function onSelectedJSONMemory() {
+    settings.extJSONStream = false
+    settings.extJSONMemory = true
+    settings.smartStoreSFJSONUtils = false
+    settings.smartStoreNSJSONSerialize = false
+    settings.rawSqlite = false
+    populateSettingsInputs(settings)
+}
+
+function onSelectedSFJSONUtils() {
+    settings.extJSONStream = false
+    settings.extJSONMemory = false
+    settings.smartStoreSFJSONUtils = true
+    settings.smartStoreNSJSONSerialize = false
+    settings.rawSqlite = false
+    populateSettingsInputs(settings)
+}
+
+function onSelectedJSONSerialize() {
+    settings.extJSONStream = false
+    settings.extJSONMemory = false
+    settings.smartStoreSFJSONUtils = false
+    settings.smartStoreNSJSONSerialize = true
+    settings.rawSqlite = false
+    populateSettingsInputs(settings)
+}
+
+function onSelectedRawSqlite() {
+    settings.extJSONStream = false
+    settings.extJSONMemory = false
+    settings.smartStoreSFJSONUtils = false
+    settings.smartStoreNSJSONSerialize = false
+    settings.rawSqlite = true
+    populateSettingsInputs(settings)
+}
+
 // Function invoked when a btnSaveSettings is pressed
 function onSaveSettings() {
     settings.extJSONStream = document.getElementById("inputExtJSONStream").checked
     settings.extJSONMemory = document.getElementById("inputExtJSONMemory").checked
     settings.smartStoreSFJSONUtils = document.getElementById("inputSmartStoreSFJSONUtils").checked
     settings.smartStoreNSJSONSerialize = document.getElementById("inputSmartStoreNSJSONSerialize").checked
-    settings.rawSQLite = document.getElementById("inputRawSQLite").checked
+    settings.rawSqlite = document.getElementById("inputRawSqlite").checked
 
     settings.keyLength = parseInt(document.getElementById("inputKeyLength").value)
     settings.valueStart = parseInt(document.getElementById("inputValueStart").value)
@@ -355,10 +396,11 @@ function main() {
         document.getElementById('btnReset').addEventListener("click", () => { onReset() })
         document.getElementById('btnDump').addEventListener("click", () => { onDump() })
 
-//        document.getElementById('btnInsert100').addEventListener("click", () => { onInsert(100) })
-//        document.getElementById('btnQueryAll1By1').addEventListener("click", () => { onQueryAll(1) })
-//        document.getElementById('btnQueryAll10By10').addEventListener("click", () => { onQueryAll(10) })
-//        document.getElementById('btnPresetDefault').addEventListener("click", () => { onPreset(presetDefault) })
+        document.getElementById('inputExtJSONStream').addEventListener("click", () => { onSelectedJSONStream() })
+        document.getElementById('inputExtJSONMemory').addEventListener("click", () => { onSelectedJSONMemory() })
+        document.getElementById('inputSmartStoreSFJSONUtils').addEventListener("click", () => { onSelectedSFJSONUtils() })
+        document.getElementById('inputSmartStoreNSJSONSerialize').addEventListener("click", () => { onSelectedJSONSerialize() })
+        document.getElementById('inputRawSqlite').addEventListener("click", () => { onSelectedRawSqlite() })
 
         // Get store client
         storeClient = cordova.require("com.salesforce.plugin.smartstore.client")
