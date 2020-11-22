@@ -23,7 +23,7 @@ var storeClient
 var settings = Object.assign({}, presetDefault)
 
 function getSoupSpec() {
-    var features = [ settings.valueLength ]
+    var features = []
     if (settings.extJSONStream) {
         features.push("extJSONStream")
     }
@@ -214,11 +214,10 @@ function onRunTest(n, ps, pe, pi, i, pa, start, actuallyAdded) {
     start = start || time()
     actuallyAdded = actuallyAdded || 0
     pa = pa || ps
-
+    
     if (i === 0 && pa <= pe) {
         log(`+ ${n} x ${entrySize}`, "blue")
     }
-
     if (pa <= pe) {
         if (i < n) {
             storeClient.upsertSoupEntries(STORE_CONFIG, SOUPNAME, [generateEntry(pa)])
