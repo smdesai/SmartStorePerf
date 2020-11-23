@@ -15,18 +15,16 @@ Through the settings screen one can control the shape of the records and whether
 - External Storage
     - Serialize JSON over stream: Serialize JSON over an encrypted stream (this is the default)
     - Serialize JSON in memory: Serialize JSON to memory before writing to disk
-- SmartStore DB Storage
-    - Serialize using SFJsonUtils: Serialize JSON using SFJsonUtils before DB write (this is the default)
-    - Serialize using NSJSONSerialization: Serialize JSON using NSJSONSerialization before DB write
+- SmartStore
+    - SmartStore: Use SmartStore
 - SQLite
-    - Serialize using NSJSONSerialization: Write to SQLite without use SmartStore
-- Key length: Length of keys in JSON object
-- Payload start (K): Initial size of JSON payload
-- Payload end (K): Final size of JSON payload
-- Payload increment (K): Payload increment size
-
-**Note:**
-The settings screen will be simplified and additional information recorded based on the options.
+    - Raw SQLite: Write straight to SQLite without use SmartStore
+- Payload Parameters
+    - Upsert returns value: When checked, upsert returns inserted payload (default)
+    - Key length: Length of keys in JSON object
+    - Payload start (K): Initial size of JSON payload
+    - Payload end (K): Final size of JSON payload
+    - Payload increment (K): Payload increment size
 
 Actions:
 - Save: To update settings and go to console screen. If you change the storage type, the soup gets recreated

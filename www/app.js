@@ -10,6 +10,7 @@ var presetDefault = {
     extJSONMemory: false,
     smartStore: false,
     rawSqlite: false,
+    upsertReturn: true,
     // Shape of entries
     keyLength: 32,
     valueStart: 100,
@@ -37,6 +38,9 @@ function getSoupSpec() {
     }
     if (settings.rawSqlite) {
         features.push("rawSqlite")
+    }
+    if (settings.upsertReturn) {
+        features.push("upsertReturn")
     }
     return {name: SOUPNAME, features: features}
 }
@@ -102,6 +106,7 @@ function populateSettingsInputs(s) {
     if (s.hasOwnProperty("extJSONMemory")) document.getElementById("inputExtJSONMemory").checked = s.extJSONMemory
     if (s.hasOwnProperty("smartStore")) document.getElementById("inputSmartStore").checked = s.smartStore
     if (s.hasOwnProperty("rawSqlite")) document.getElementById("inputRawSqlite").checked = s.rawSqlite
+    if (s.hasOwnProperty("upsertReturn")) document.getElementById("inputUpsertReturn").checked = s.upsertReturn
 
     if (s.hasOwnProperty("keyLength")) document.getElementById("inputKeyLength").value = s.keyLength
     if (s.hasOwnProperty("valueStart")) document.getElementById("inputValueStart").value = s.valueStart
@@ -159,6 +164,7 @@ function onSaveSettings() {
     settings.extJSONMemory = document.getElementById("inputExtJSONMemory").checked
     settings.smartStore = document.getElementById("inputSmartStore").checked
     settings.rawSqlite = document.getElementById("inputRawSqlite").checked
+    settings.upsertReturn = document.getElementById("inputUpsertReturn").checked
 
     settings.keyLength = parseInt(document.getElementById("inputKeyLength").value)
     settings.valueStart = parseInt(document.getElementById("inputValueStart").value)
@@ -204,7 +210,7 @@ function getEntrySizeAsString(length) {
 
 // Function invoked when a btnInsert* button is pressed
 function onInsert(n, i, start, actuallyAdded) {
-    var entrySize = getEntrySizeAsString()
+    var entrySize = getEntrySizeAsString(settings.valueLength)
     i = i || 0
     start = start || time()
     actuallyAdded = actuallyAdded || 0
@@ -371,7 +377,6 @@ function main() {
         document.getElementById('btnCancelSettings').addEventListener("click", onCancelSettings)
         document.getElementById('btnClear').addEventListener("click", onClear)
         document.getElementById('btnInsert10').addEventListener("click", () => { onInsert(10) })
-
         document.getElementById('btnRunTests').addEventListener("click", () => { onRunTest(10, settings.valueStart, settings.valueLength, settings.valueIncrement) })
 
         document.getElementById('btnReset').addEventListener("click", () => { onReset() })
