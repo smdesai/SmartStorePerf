@@ -8,8 +8,7 @@ const SMART_QUERY = "select {soup:key}, {soup:_soup} from {soup}"
 var presetDefault = {
     extJSONStream: true,
     extJSONMemory: false,
-    smartStoreSFJSONUtils: false,
-    smartStoreNSJSONSerialize: false,
+    smartStore: false,
     rawSqlite: false,
     // Shape of entries
     keyLength: 32,
@@ -33,11 +32,8 @@ function getSoupSpec() {
     if (settings.extJSONStream || settings.extJSONMemory) {
         features.push("externalStorage")
     }
-    if (settings.smartStoreSFJSONUtils) {
-        features.push("smartStoreSFJSONUtils")
-    }
-    if (settings.smartStoreNSJSONSerialize) {
-        features.push("smartStoreNSJSONSerialize")
+    if (settings.smartStore) {
+        features.push("smartStore")
     }
     if (settings.rawSqlite) {
         features.push("rawSqlite")
@@ -104,8 +100,7 @@ function showHideSettings(show) {
 function populateSettingsInputs(s) {
     if (s.hasOwnProperty("extJSONStream")) document.getElementById("inputExtJSONStream").checked = s.extJSONStream
     if (s.hasOwnProperty("extJSONMemory")) document.getElementById("inputExtJSONMemory").checked = s.extJSONMemory
-    if (s.hasOwnProperty("smartStoreSFJSONUtils")) document.getElementById("inputSmartStoreSFJSONUtils").checked = s.smartStoreSFJSONUtils
-    if (s.hasOwnProperty("smartStoreNSJSONSerialize")) document.getElementById("inputSmartStoreNSJSONSerialize").checked = s.smartStoreNSJSONSerialize
+    if (s.hasOwnProperty("smartStore")) document.getElementById("inputSmartStore").checked = s.smartStore
     if (s.hasOwnProperty("rawSqlite")) document.getElementById("inputRawSqlite").checked = s.rawSqlite
 
     if (s.hasOwnProperty("keyLength")) document.getElementById("inputKeyLength").value = s.keyLength
@@ -129,8 +124,7 @@ function onPreset(s) {
 function onSelectedJSONStream() {
     settings.extJSONStream = true
     settings.extJSONMemory = false
-    settings.smartStoreSFJSONUtils = false
-    settings.smartStoreNSJSONSerialize = false
+    settings.smartStore = false
     settings.rawSqlite = false
     populateSettingsInputs(settings)
 }
@@ -138,26 +132,15 @@ function onSelectedJSONStream() {
 function onSelectedJSONMemory() {
     settings.extJSONStream = false
     settings.extJSONMemory = true
-    settings.smartStoreSFJSONUtils = false
-    settings.smartStoreNSJSONSerialize = false
+    settings.smartStore = false
     settings.rawSqlite = false
     populateSettingsInputs(settings)
 }
 
-function onSelectedSFJSONUtils() {
+function onSelectedSmartStore() {
     settings.extJSONStream = false
     settings.extJSONMemory = false
-    settings.smartStoreSFJSONUtils = true
-    settings.smartStoreNSJSONSerialize = false
-    settings.rawSqlite = false
-    populateSettingsInputs(settings)
-}
-
-function onSelectedJSONSerialize() {
-    settings.extJSONStream = false
-    settings.extJSONMemory = false
-    settings.smartStoreSFJSONUtils = false
-    settings.smartStoreNSJSONSerialize = true
+    settings.smartStore = true
     settings.rawSqlite = false
     populateSettingsInputs(settings)
 }
@@ -165,8 +148,7 @@ function onSelectedJSONSerialize() {
 function onSelectedRawSqlite() {
     settings.extJSONStream = false
     settings.extJSONMemory = false
-    settings.smartStoreSFJSONUtils = false
-    settings.smartStoreNSJSONSerialize = false
+    settings.smartStore = false
     settings.rawSqlite = true
     populateSettingsInputs(settings)
 }
@@ -175,8 +157,7 @@ function onSelectedRawSqlite() {
 function onSaveSettings() {
     settings.extJSONStream = document.getElementById("inputExtJSONStream").checked
     settings.extJSONMemory = document.getElementById("inputExtJSONMemory").checked
-    settings.smartStoreSFJSONUtils = document.getElementById("inputSmartStoreSFJSONUtils").checked
-    settings.smartStoreNSJSONSerialize = document.getElementById("inputSmartStoreNSJSONSerialize").checked
+    settings.smartStore = document.getElementById("inputSmartStore").checked
     settings.rawSqlite = document.getElementById("inputRawSqlite").checked
 
     settings.keyLength = parseInt(document.getElementById("inputKeyLength").value)
@@ -398,8 +379,7 @@ function main() {
 
         document.getElementById('inputExtJSONStream').addEventListener("click", () => { onSelectedJSONStream() })
         document.getElementById('inputExtJSONMemory').addEventListener("click", () => { onSelectedJSONMemory() })
-        document.getElementById('inputSmartStoreSFJSONUtils').addEventListener("click", () => { onSelectedSFJSONUtils() })
-        document.getElementById('inputSmartStoreNSJSONSerialize').addEventListener("click", () => { onSelectedJSONSerialize() })
+        document.getElementById('inputSmartStore').addEventListener("click", () => { onSelectedSmartStore() })
         document.getElementById('inputRawSqlite').addEventListener("click", () => { onSelectedRawSqlite() })
 
         // Get store client
