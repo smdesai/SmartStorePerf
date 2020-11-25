@@ -466,7 +466,7 @@ var closeCursor = function (storeConfig, cursor, successCB, errorCB) {
 
 var resetPerfDb = function (storeConfig, soupName, successCB, errorCB) {
     exec(SALESFORCE_MOBILE_SDK_VERSION, successCB, errorCB, SERVICE,
-         "p",
+         "pgResetPerfDb",
          [{"soupName": soupName, "isGlobalStore": storeConfig.isGlobalStore, "storeName": storeConfig.storeName}]
         );
 };

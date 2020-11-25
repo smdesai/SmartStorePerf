@@ -390,7 +390,8 @@ function main() {
         // Get store client
         storeClient = cordova.require("com.salesforce.plugin.smartstore.client")
         // Sets up soup - don't drop soup if it already exists
-        setupSoup(false)
+        populateSettingsInputs(settings)
+        onSaveSettings()
     })
 }
 
